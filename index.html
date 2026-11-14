@@ -5,27 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MoodSpace GH</title>
 <style>
-body{margin:0;font-family:Arial;background:#f0f6ff}
-header{background:#2563eb;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
-header b{font-size:22px}
-.wrap{max-width:650px;margin:16px auto;padding:0 12px}
-.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
-input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;margin:7px 0;font-size:15px;box-sizing:border-box}
-.btn{background:#2563eb;color:#fff;border:0;border-radius:10px;padding:12px;width:100%;font-weight:bold;font-size:16px;cursor:pointer}
-.btn2{background:#e0eaff;color:#2563eb;border:0;border-radius:10px;padding:12px;width:100%;font-weight:bold;margin-top:8px;cursor:pointer}
-.small{font-size:13px;color:#64748b;text-align:center}
-.hidden{display:none}
+body{margin:0;font-family:Arial;background:#eef4ff}
+header{background:linear-gradient(90deg,#1d4ed8,#2563eb);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+header b{font-size:23px} header b span{color:#fde047}
+.wrap{max-width:650px;margin:0 auto;padding:12px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.07);border:1px solid #e0eaff}
+.stories{display:flex;gap:10px;overflow-x:auto;padding:6px 2px 12px}
+.story{min-width:70px;text-align:center;font-size:11px;color:#1e3a8a;cursor:pointer}
+.avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;margin:0 auto;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.15);overflow:hidden}
+.avatar img,.avatar video{width:100%;height:100%;object-fit:cover}
+.post-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0}
+input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:12px;margin:7px 0;font-size:15px;box-sizing:border-box}
+.btn{background:#2563eb;color:#fff;border:0;border-radius:12px;padding:12px;width:100%;font-weight:bold;font-size:16px;cursor:pointer}
+.btn2{background:#e0eaff;color:#2563eb;border:0;border-radius:12px;padding:12px;width:100%;font-weight:bold;margin-top:8px;cursor:pointer}
+.btn-small{background:#eff6ff;color:#1d4ed8;border:1px solid #dbeafe;border-radius:999px;padding:8px 14px;font-weight:bold;cursor:pointer;margin-right:6px}
+.btn-small.active{background:#2563eb;color:#fff}
+.tab{background:#fff;border:1px solid #dbeafe;border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:bold;color:#1e40af}
+.tab.active{background:#1d4ed8;color:#fff}
+.tabs{display:flex;gap:8px;margin:8px 0 12px;flex-wrap:wrap}
 .badge{background:#dbeafe;color:#1d4ed8;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:bold}
-.post-img{width:100%;border-radius:10px;margin-top:10px}
+.verified{color:#2563eb}
+.post-img{width:100%;border-radius:12px;margin-top:10px;max-height:420px;object-fit:cover}
+.post-video{width:100%;border-radius:12px;margin-top:10px;max-height:420px;background:#000}
+.form-box{background:#eff6ff;border:1px dashed #60a5fa;border-radius:12px;padding:12px;margin-top:12px}
+.small{font-size:13px;color:#64748b}
+.hidden{display:none}
+.comment-box{background:#f8fafc;border-radius:10px;padding:8px 10px;margin-top:8px;font-size:14px}
+.live-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block}
+.file-label{background:#eff6ff;border:2px dashed #93c5fd;border-radius:12px;padding:14px;text-align:center;display:block;cursor:pointer;color:#1d4ed8;font-weight:bold;margin:7px 0}
 </style>
 </head>
 <body>
-<header><b>MoodSpace GH</b><span id="headerUser"></span></header>
+<header><b>MoodSpace <span>GH</span></b><span id="headerUser"></span></header>
 
 <div class="wrap" id="authScreen">
 <div class="card" style="text-align:center">
-<h2 style="color:#2563eb;margin:4px 0">Welcome to MoodSpace GH</h2>
-<p class="small">Blue and White. Post Announcements, Promos, Events.</p>
+<div style="font-size:48px">🎵🔥🎬</div>
+<h2 style="color:#1d4ed8;margin:4px 0">Welcome to MoodSpace GH</h2>
+<p class="small">Real Entertainment Social - Post Real Videos, Photos, Stories - FREE Upload</p>
 <input id="authName" placeholder="Full Name (for Create Account)">
 <input id="authEmail" placeholder="Email">
 <input id="authPass" placeholder="Password" type="password">
@@ -37,13 +54,28 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-ra
 </div>
 
 <div class="wrap hidden" id="mainScreen">
+<div class="stories" id="storyBar"></div>
+<div class="tabs">
+<div class="tab active" onclick="setFilter('All',this)">All</div><div class="tab" onclick="setFilter('Announcement',this)">Announcements</div>
+<div class="tab" onclick="setFilter('Promo',this)">Promo</div>
+<div class="tab" onclick="setFilter('Event',this)">Events</div>
+</div>
 <div class="card">
-<h3 style="margin:0;color:#2563eb">Create Post</h3>
+<div style="display:flex;gap:10px;align-items:center"><div class="post-avatar" id="myAvatar">M</div><b id="myNameLabel">Share something...</b></div>
 <select id="postType"><option>Announcement</option><option>Promo</option><option>Event</option></select>
 <input id="postTitle" placeholder="Title">
-<textarea id="postText" rows="3" placeholder="Write details... date, venue, price, link"></textarea>
-<input id="postImage" placeholder="Image link (optional)">
-<button class="btn" onclick="doPost()">Post Now</button>
+<textarea id="postText" rows="3" placeholder="Write details..."></textarea>
+<label class="file-label">📸🎥 Tap to pick Photo / Video from Phone / Gallery<input type="file" id="postFile" accept="image/*,video/*" style="display:none" onchange="previewFile()"></label>
+<div id="previewBox"></div>
+<label style="font-size:14px"><input type="checkbox" id="useForm" style="width:auto" onchange="showFormBox()"> Add a Form to this post</label>
+<div id="formBuilder" class="form-box hidden">
+<b>Form Builder</b>
+<input id="formTitle" placeholder="Form Title">
+<input id="formQ1" placeholder="Question 1">
+<input id="formQ2" placeholder="Question 2">
+<input id="formQ3" placeholder="Question 3 (optional)">
+</div>
+<button class="btn" style="margin-top:8px" onclick="doPost()">Post Now 🚀</button>
 <p id="postMsg" class="small"></p>
 </div>
 <div id="feed"></div>
@@ -52,7 +84,10 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-ra
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc, setDoc, serverTimestamp, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+var CLOUD_NAME = "demo";
+var UPLOAD_PRESET = "docs_upload_example_us_preset";
 
 var firebaseConfig = {
   apiKey: "AIzaSyBHp8ica_4LhPVYYyxhQz70x7ad2x-cOJM",
@@ -67,10 +102,42 @@ var auth = getAuth(app);
 var db = getFirestore(app);
 var currentUser = null;
 var currentName = "User";
+var currentVerified = false;
 var allPosts = [];
+var allStories = [];
+var currentFilter = "All";
+var selectedFile = null;
 
 function getEl(id){ return document.getElementById(id); }
+function esc(s){ if(s === null || s === undefined){ return ""; } return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function isVideo(url){ if(!url){ return false; } var u = url.toLowerCase(); if(u.indexOf(".mp4") > -1  u.indexOf(".mov") > -1  u.indexOf(".webm") > -1 || u.indexOf("/video/") > -1){ return true; } return false; }
 
+async function uploadToCloudinary(file){
+  var fd = new FormData();
+  fd.append("file", file);
+  fd.append("upload_preset", UPLOAD_PRESET);
+  var res = await fetch("https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/auto/upload", {method: "POST", body: fd});
+  var data = await res.json();
+  if(data.secure_url){ return data.secure_url; }
+  throw new Error("Upload failed. Try smaller file.");
+}
+
+window.showFormBox = function(){ if(getEl("useForm").checked){ getEl("formBuilder").classList.remove("hidden"); } else { getEl("formBuilder").classList.add("hidden"); } };
+window.setFilter = function(f, el){
+  currentFilter = f;
+  var tabs = document.querySelectorAll(".tab");
+  for(var i=0;i<tabs.length;i++){ tabs[i].classList.remove("active"); }
+  if(el){ el.classList.add("active"); }
+  showFeed();
+};
+window.previewFile = function(){
+  var input = getEl("postFile");
+  if(input.files.length === 0){ return; }
+  selectedFile = input.files[0];
+  var url = URL.createObjectURL(selectedFile);
+  if(selectedFile.type.indexOf("video") > -1){ getEl("previewBox").innerHTML = "<video src='" + url + "' controls style='width:100%;border-radius:12px'></video>"; }
+  else { getEl("previewBox").innerHTML = "<img src='" + url + "' style='width:100%;border-radius:12px'>"; }
+};
 window.doSignup = async function(){
   var name = getEl("authName").value;
   var email = getEl("authEmail").value;
@@ -81,71 +148,199 @@ window.doSignup = async function(){
   try{
     var cred = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(cred.user, {displayName: name});
-    await setDoc(doc(db, "users", cred.user.uid), {name: name, email: email, createdAt: serverTimestamp()});
+    var isFounder = false;
+    if(email === "moodspaceafrica@gmail.com"){ isFounder = true; }
+    if(name === "MoodSpace GH"){ isFounder = true; }
+    await setDoc(doc(db, "users", cred.user.uid), {name: name, email: email, verified: isFounder, createdAt: serverTimestamp()});
     getEl("authMsg").textContent = "";
   }catch(e){ getEl("authMsg").textContent = e.message; }
 };
-
 window.doLogin = async function(){
   var email = getEl("authEmail").value;
   var pass = getEl("authPass").value;
   if(email === "" || pass === ""){ getEl("authMsg").textContent = "Enter email and password"; return; }
   getEl("authMsg").textContent = "Logging in...";
-  try{
-    await signInWithEmailAndPassword(auth, email, pass);
-    getEl("authMsg").textContent = "";
-  }catch(e){ getEl("authMsg").textContent = e.message; }
+  try{ await signInWithEmailAndPassword(auth, email, pass); getEl("authMsg").textContent = ""; }catch(e){ getEl("authMsg").textContent = e.message; }
 };
-
 window.doReset = async function(){
   var email = getEl("authEmail").value;
   if(email === ""){ alert("Type your email first"); return; }
   try{ await sendPasswordResetEmail(auth, email); alert("Reset email sent"); }catch(e){ alert(e.message); }
 };
-
 window.doLogout = async function(){ await signOut(auth); };
-
 window.doPost = async function(){
   if(currentUser === null){ alert("Login first"); return; }
   var title = getEl("postTitle").value;
   var text = getEl("postText").value;
   var type = getEl("postType").value;
-  var image = getEl("postImage").value;
   if(title === "" || text === ""){ getEl("postMsg").textContent = "Add Title and Details"; return; }
-  getEl("postMsg").textContent = "Posting...";
+  getEl("postMsg").textContent = "Uploading FREE... Please wait...";
+  var mediaUrl = "";
+  var mediaType = "none";
   try{
-    await addDoc(collection(db, "posts"), {title: title, text: text, type: type, image: image, authorName: currentName, authorId: currentUser.uid, createdAt: serverTimestamp()});
+    if(selectedFile !== null){
+      mediaUrl = await uploadToCloudinary(selectedFile);
+      if(selectedFile.type.indexOf("video") > -1){ mediaType = "video"; } else { mediaType = "image"; }
+    }
+    var form = null;
+    if(getEl("useForm").checked){
+      var ft = getEl("formTitle").value;
+      var fq1 = getEl("formQ1").value;
+      var fq2 = getEl("formQ2").value;
+      var fq3 = getEl("formQ3").value;
+      if(ft === ""){ ft = "Fill this form"; }
+      if(fq1 === ""){ fq1 = "Your Name"; }
+      if(fq2 === ""){ fq2 = "Phone"; }
+      form = {title: ft, q1: fq1, q2: fq2, q3: fq3};
+    }
+    await addDoc(collection(db, "posts"), {title: title, text: text, type: type, image: mediaUrl, mediaType: mediaType, form: form, authorName: currentName, authorId: currentUser.uid, verified: currentVerified, likes: [], comments: [], createdAt: serverTimestamp()});
     getEl("postTitle").value = "";
     getEl("postText").value = "";
-    getEl("postImage").value = "";
+    getEl("postFile").value = "";
+    getEl("previewBox").innerHTML = "";
+    selectedFile = null;
+    getEl("useForm").checked = false;
+    getEl("formBuilder").classList.add("hidden");
     getEl("postMsg").textContent = "Posted!";
-  }catch(e){ getEl("postMsg").textContent = e.message; }
+  }catch(e){ getEl("postMsg").textContent = "Upload failed: " + e.message; }
 };
-
+window.addStory = async function(){
+  if(currentUser === null){ alert("Login first"); return; }
+  var input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*,video/*";
+  input.onchange = async function(){
+    var file = input.files[0];
+    if(!file){ return; }
+    var txt = prompt("Add text to your story (optional):");
+    if(txt === null){ txt = ""; }
+    try{
+      var url = await uploadToCloudinary(file);
+      var mType = "image";
+      if(file.type.indexOf("video") > -1){ mType = "video"; }await addDoc(collection(db, "stories"), {media: url, mediaType: mType, text: txt, authorName: currentName, authorId: currentUser.uid, verified: currentVerified, createdAt: serverTimestamp()});
+      alert("Story posted! 🔥");
+    }catch(e){ alert("Story failed: " + e.message); }
+  };
+  input.click();
+};
+window.viewStory = function(url, mType, txt){
+  var w = window.open("", "_blank");
+  var mediaTag = "";
+  if(mType === "video"){ mediaTag = "<video src='" + url + "' controls autoplay style='width:100%'></video>"; }
+  else { mediaTag = "<img src='" + url + "' style='width:100%'>"; }
+  w.document.write("<body style='background:#000;color:#fff;font-family:Arial;text-align:center'><h2>" + txt + "</h2>" + mediaTag + "</body>");
+};
+window.doLike = async function(id){
+  if(currentUser === null){ alert("Login to like"); return; }
+  var post = null;
+  for(var i=0;i<allPosts.length;i++){ if(allPosts[i].id === id){ post = allPosts[i]; } }
+  if(post === null){ return; }
+  var likes = post.likes;
+  if(likes === undefined){ likes = []; }
+  var hasLiked = false;
+  for(var j=0;j<likes.length;j++){ if(likes[j] === currentUser.uid){ hasLiked = true; } }
+  var refDoc = doc(db, "posts", id);
+  if(hasLiked){
+    var newLikes = [];
+    for(var k=0;k<likes.length;k++){ if(likes[k] !== currentUser.uid){ newLikes.push(likes[k]); } }
+    await updateDoc(refDoc, {likes: newLikes});
+  } else {
+    await updateDoc(refDoc, {likes: arrayUnion(currentUser.uid)});
+  }
+};
+window.doComment = async function(id){
+  if(currentUser === null){ alert("Login to comment"); return; }
+  var txt = prompt("Write your comment:");
+  if(txt === null || txt === ""){ return; }
+  var refDoc = doc(db, "posts", id);
+  await updateDoc(refDoc, {comments: arrayUnion({name: currentName, text: txt})});
+};
+window.doShare = async function(title, text){
+  var link = window.location.href;
+  var shareText = title + " - " + text + " - " + link;
+  try{
+    if(navigator.share){ await navigator.share({title: title, text: shareText, url: link}); }
+    else { await navigator.clipboard.writeText(shareText); alert("Link copied! Share am anywhere."); }
+  }catch(e){ await navigator.clipboard.writeText(shareText); alert("Link copied!"); }
+};
+window.doForm = async function(postId){
+  var a1 = prompt("Form - Question 1: Your Name?");
+  if(a1 === null){ return; }
+  var a2 = prompt("Question 2: Phone / WhatsApp?");
+  var a3 = prompt("Question 3 (optional):");
+  try{
+    await addDoc(collection(db, "formResponses"), {postId: postId, name: a1, answer2: a2, answer3: a3, userId: currentUser.uid, createdAt: serverTimestamp()});
+    alert("Form submitted! Thank you.");
+  }catch(e){ alert(e.message); }
+};
+function showStories(){
+  var bar = getEl("storyBar");
+  var html = "<div class='story' onclick=\"addStory()\"><div class='avatar'>+</div>Add Story</div>";
+  for(var i=0;i<allStories.length;i++){
+    var s = allStories[i];
+    var mediaInner = "";
+    if(s.mediaType === "video"){ mediaInner = "<video src='" + esc(s.media) + "' muted style='width:100%;height:100%;object-fit:cover'></video>"; }
+    else { mediaInner = "<img src='" + esc(s.media) + "'>"; }
+    var txtEsc = esc(s.text);
+    html = html + "<div class='story' onclick=\"viewStory('" + esc(s.media) + "','" + esc(s.mediaType) + "','" + txtEsc + "')\"><div class='avatar'>" + mediaInner + "</div>" + esc(s.authorName) + "</div>";
+  }
+  bar.innerHTML = html;
+}
 function showFeed(){
   var feed = getEl("feed");
-  if(allPosts.length === 0){ feed.innerHTML = "<div class='card' style='text-align:center'>No posts yet. Be the first!</div>"; return; }
+  var list = [];
+  for(var i=0;i<allPosts.length;i++){ if(currentFilter === "All" || allPosts[i].type === currentFilter){ list.push(allPosts[i]); } }
+  if(list.length === 0){ feed.innerHTML = "<div class='card' style='text-align:center'>No posts yet. Be the first! 🔥</div>"; return; }
   var html = "";
-  for(var i=0;i<allPosts.length;i++){
-    var p = allPosts[i];
-    var imgHtml = "";
-    if(p.image && p.image !== ""){ imgHtml = "<img class='post-img' src='" + p.image + "'>"; }
-    html = html + "<div class='card'><span class='badge'>" + p.type + "</span><h3>" + p.title + "</h3><p>" + p.text + "</p><p class='small'>By " + p.authorName + "</p>" + imgHtml + "</div>";
+  for(var n=0;n<list.length;n++){
+    var p = list[n];
+    var firstLetter = "M";
+    if(p.authorName && p.authorName.length > 0){ firstLetter = p.authorName.charAt(0); }
+    var verifiedHtml = "";
+    if(p.verified === true){ verifiedHtml = " <span class='verified'>✔️</span>"; }
+    var mediaHtml = "";
+    if(p.image && p.image !== ""){if(p.mediaType === "video" || isVideo(p.image)){ mediaHtml = "<video class='post-video' src='" + esc(p.image) + "' controls></video>"; }
+      else { mediaHtml = "<img class='post-img' src='" + esc(p.image) + "'>"; }
+    }
+    var formHtml = "";
+    if(p.form){
+      var q3line = "";
+      if(p.form.q3 && p.form.q3 !== ""){ q3line = "<br>3. " + esc(p.form.q3); }
+      formHtml = "<div class='form-box'><b>📋 " + esc(p.form.title) + "</b><p class='small'>1. " + esc(p.form.q1) + "<br>2. " + esc(p.form.q2) + q3line + "</p><button class='btn-small' onclick=\"doForm('" + p.id + "')\">Fill Form</button></div>";
+    }
+    var likes = p.likes;
+    if(likes === undefined){ likes = []; }
+    var likedClass = "";
+    if(currentUser){ for(var l=0;l<likes.length;l++){ if(likes[l] === currentUser.uid){ likedClass = " active"; } } }
+    var comments = p.comments;
+    if(comments === undefined){ comments = []; }
+    var commentHtml = "";
+    for(var c=0;c<comments.length;c++){ commentHtml = commentHtml + "<div class='comment-box'><b>" + esc(comments[c].name) + ":</b> " + esc(comments[c].text) + "</div>"; }
+    html = html + "<div class='card'><div style='display:flex;gap:10px'><div class='post-avatar'>" + esc(firstLetter) + "</div><div><b>" + esc(p.authorName) + verifiedHtml + "</b><br><span class='small'>Active now • " + esc(p.type) + "</span></div></div><span class='badge'>" + esc(p.type) + "</span><h3 style='margin:8px 0 4px'>" + esc(p.title) + "</h3><p style='white-space:pre-wrap'>" + esc(p.text) + "</p>" + mediaHtml + formHtml + "<div style='margin-top:12px'><button class='btn-small" + likedClass + "' onclick=\"doLike('" + p.id + "')\">❤️ Like (" + likes.length + ")</button><button class='btn-small' onclick=\"doComment('" + p.id + "')\">💬 Comment (" + comments.length + ")</button><button class='btn-small' onclick=\"doShare('" + esc(p.title) + "','" + esc(p.text) + "')\">🔗 Share</button></div>" + commentHtml + "</div>";
   }
   feed.innerHTML = html;
 }
-
 onAuthStateChanged(auth, async function(user){
   if(user){
     currentUser = user;
-    currentName = user.displayName || "User";
+    currentName = user.displayName;
+    if(currentName === null || currentName === ""){ currentName = "User"; }
+    currentVerified = false;
     try{
       var snap = await getDoc(doc(db, "users", user.uid));
-      if(snap.exists()){ currentName = snap.data().name; }
+      if(snap.exists()){
+        var udata = snap.data();
+        currentName = udata.name;
+        if(udata.verified === true){ currentVerified = true; }
+      }
     }catch(e){}
     getEl("authScreen").classList.add("hidden");
     getEl("mainScreen").classList.remove("hidden");
-    getEl("headerUser").innerHTML = "Hi, " + currentName + " <button onclick='doLogout()'>Logout</button>";
+    var badge = "";
+    if(currentVerified === true){ badge = " ✔️"; }
+    getEl("headerUser").innerHTML = "Hi, " + esc(currentName) + badge + " <button onclick='doLogout()'>Logout</button>";
+    getEl("myNameLabel").textContent = "Hi " + currentName + ", share something...";
+    getEl("myAvatar").textContent = currentName.charAt(0);
   } else {
     currentUser = null;
     getEl("authScreen").classList.remove("hidden");
@@ -153,12 +348,17 @@ onAuthStateChanged(auth, async function(user){
     getEl("headerUser").innerHTML = "";
   }
 });
-
 var q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
 onSnapshot(q, function(snap){
   allPosts = [];
   snap.forEach(function(d){ var data = d.data(); data.id = d.id; allPosts.push(data); });
   if(currentUser !== null){ showFeed(); }
+});
+var q2 = query(collection(db, "stories"), orderBy("createdAt", "desc"));
+onSnapshot(q2, function(snap){
+  allStories = [];
+  snap.forEach(function(d){ var data = d.data(); data.id = d.id; allStories.push(data); });
+  if(currentUser !== null){ showStories(); }
 });
 </script>
 </body>
