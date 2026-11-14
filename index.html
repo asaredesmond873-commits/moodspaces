@@ -1,83 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MoodSpace GH - V3</title>
+<title>MoodSpace GH</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f0f2f5;color:#111}
-header{background:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,.1);position:sticky;top:0;z-index:10}
-.logo{font-weight:900;font-size:20px} .logo span{color:#7c3aed}
-.wrap{max-width:700px;margin:16px auto;padding:0 12px}
-.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-input,select,textarea{width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;margin:7px 0;font-size:15px}
-button{border:0;border-radius:8px;padding:11px 16px;font-weight:700;cursor:pointer}
-.btn-primary{background:#7c3aed;color:#fff;width:100%}
-.btn-secondary{background:#e5e7eb;width:100%;margin-top:8px}
-.btn-small{background:#7c3aed;color:#fff;padding:8px 12px}
-.tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-.tab{background:#fff;border:1px solid #ddd;border-radius:999px;padding:8px 14px;cursor:pointer}
-.tab.active{background:#111;color:#fff}
-.badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;background:#ede9fe}
-.hidden{display:none!important}
-.post-img{width:100%;border-radius:10px;margin-top:10px;max-height:380px;object-fit:cover}
-.form-box{background:#f9f5ff;border:1px dashed #a78bfa;border-radius:10px;padding:12px;margin-top:12px}
-.small{font-size:13px;color:#666}
-#authMsg{color:red;font-size:14px;min-height:18px;text-align:center}
+body{margin:0;font-family:Arial;background:#f0f6ff}
+header{background:#2563eb;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+header b{font-size:22px}
+.wrap{max-width:650px;margin:16px auto;padding:0 12px}
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;margin:7px 0;font-size:15px;box-sizing:border-box}
+.btn{background:#2563eb;color:#fff;border:0;border-radius:10px;padding:12px;width:100%;font-weight:bold;font-size:16px;cursor:pointer}
+.btn2{background:#e0eaff;color:#2563eb;border:0;border-radius:10px;padding:12px;width:100%;font-weight:bold;margin-top:8px;cursor:pointer}
+.small{font-size:13px;color:#64748b;text-align:center}
+.hidden{display:none}
+.badge{background:#dbeafe;color:#1d4ed8;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:bold}
+.post-img{width:100%;border-radius:10px;margin-top:10px}
 </style>
 </head>
 <body>
-<header><div class="logo">MoodSpace <span>GH</span></div><div id="headerUser"></div></header>
+<header><b>MoodSpace GH</b><span id="headerUser"></span></header>
 
 <div class="wrap" id="authScreen">
-  <div class="card" style="text-align:center">
-    <h2 style="margin:4px 0">Welcome to MoodSpace GH</h2>
-    <p class="small">Post Announcements, Promos, Events, Videos. Fans fill your forms.</p>
-    <input id="authName" placeholder="Full Name (for Create Account only)">
-    <input id="authEmail" placeholder="Email" type="email">
-    <input id="authPass" placeholder="Password (6+ chars)" type="password">
-    <div id="authMsg"></div>
-    <button class="btn-primary" onclick="login()">Login</button>
-    <button class="btn-secondary" onclick="signup()">Create Account</button>
-    <p><a href="#" onclick="resetPass();return false;">Forgot Password?</a></p>
-  </div>
+<div class="card" style="text-align:center">
+<h2 style="color:#2563eb;margin:4px 0">Welcome to MoodSpace GH</h2>
+<p class="small">Blue and White. Post Announcements, Promos, Events.</p>
+<input id="authName" placeholder="Full Name (for Create Account)">
+<input id="authEmail" placeholder="Email">
+<input id="authPass" placeholder="Password" type="password">
+<p id="authMsg" style="color:red"></p>
+<button class="btn" onclick="doLogin()">Login</button>
+<button class="btn2" onclick="doSignup()">Create Account</button>
+<p><a href="#" onclick="doReset();return false;">Forgot Password?</a></p>
+</div>
 </div>
 
 <div class="wrap hidden" id="mainScreen">
-  <div class="tabs" id="tabs">
-    <div class="tab active" onclick="setFilter('All',this)">All</div>
-    <div class="tab" onclick="setFilter('Announcement',this)">Announcements 📢</div>
-    <div class="tab" onclick="setFilter('Promo',this)">Promo 📣</div>
-    <div class="tab" onclick="setFilter('Event',this)">Events 🎉</div>
-  </div>
-
-  <div class="card">
-    <h3 style="margin:0 0 6px">Post an Announcement, Promo, Event...</h3>
-    <select id="postType"><option value="Announcement">Announcement 📢</option><option value="Promo">Promo 📣</option><option value="Event">Event 🎉</option></select>
-    <input id="postTitle" placeholder="Title - e.g. New Single Out Now!">
-    <textarea id="postText" rows="3" placeholder="Write details... Date, venue, link, price..."></textarea>
-    <input id="postImage" placeholder="Image / Video link (optional) - paste YouTube or image URL">
-    <label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" id="useForm" style="width:auto" onchange="document.getElementById('formBuilder').classList.toggle('hidden',!this.checked)"> 📋 Add a Form to this post</label>
-    <div id="formBuilder" class="form-box hidden">
-      <b>Form Builder</b>
-      <input id="formTitle" placeholder="Form Title - e.g. Book Your Slot">
-      <input id="formQ1" placeholder="Question 1 - e.g. Your Name">
-      <input id="formQ2" placeholder="Question 2 - e.g. Phone / WhatsApp">
-      <input id="formQ3" placeholder="Question 3 - e.g. How many tickets? (optional)"><p class="small">Fans will fill this. You will see responses in your post.</p>
-    </div>
-    <button class="btn-primary" style="margin-top:10px" onclick="createPost()">Post Now</button>
-    <p id="postMsg" class="small"></p>
-  </div>
-
-  <div id="feed"></div>
+<div class="card">
+<h3 style="margin:0;color:#2563eb">Create Post</h3>
+<select id="postType"><option>Announcement</option><option>Promo</option><option>Event</option></select>
+<input id="postTitle" placeholder="Title">
+<textarea id="postText" rows="3" placeholder="Write details... date, venue, price, link"></textarea>
+<input id="postImage" placeholder="Image link (optional)">
+<button class="btn" onclick="doPost()">Post Now</button>
+<p id="postMsg" class="small"></p>
+</div>
+<div id="feed"></div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc, setDoc, serverTimestamp, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
+var firebaseConfig = {
   apiKey: "AIzaSyBHp8ica_4LhPVYYyxhQz70x7ad2x-cOJM",
   authDomain: "moodspaceafrica.firebaseapp.com",
   projectId: "moodspaceafrica",
@@ -85,133 +62,103 @@ const firebaseConfig = {
   messagingSenderId: "449390027692",
   appId: "1:449390027692:web:8651532b91c5ea3e82d009"
 };
+var app = initializeApp(firebaseConfig);
+var auth = getAuth(app);
+var db = getFirestore(app);
+var currentUser = null;
+var currentName = "User";
+var allPosts = [];
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+function getEl(id){ return document.getElementById(id); }
 
-let currentUser = null;
-let currentUserData = null;
-let allPosts = [];
-let currentFilter = "All";
-
-const $ = (id) => document.getElementById(id);
-
-window.setFilter = (f, el) => {
-  currentFilter = f;
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  if(el) el.classList.add("active");
-  renderFeed();
-};
-
-window.signup = async () => {
-  const name = $("authName").value.trim();
-  const email = $("authEmail").value.trim();
-  const pass = $("authPass").value;
-  if(!name) return $("authMsg").textContent = "Please enter your Name for Create Account";
-  if(!email || !pass) return $("authMsg").textContent = "Enter email + password";
-  $("authMsg").textContent = "Creating account...";
+window.doSignup = async function(){
+  var name = getEl("authName").value;
+  var email = getEl("authEmail").value;
+  var pass = getEl("authPass").value;
+  if(name === ""){ getEl("authMsg").textContent = "Enter your Name"; return; }
+  if(email === "" || pass === ""){ getEl("authMsg").textContent = "Enter email and password"; return; }
+  getEl("authMsg").textContent = "Creating...";
   try{
-    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-    await updateProfile(cred.user, { displayName: name });
-    await setDoc(doc(db,"users",cred.user.uid), { name, email, createdAt: serverTimestamp() });
-    $("authMsg").textContent = "";
-  }catch(e){ $("authMsg").textContent = e.message; }
+    var cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await updateProfile(cred.user, {displayName: name});
+    await setDoc(doc(db, "users", cred.user.uid), {name: name, email: email, createdAt: serverTimestamp()});
+    getEl("authMsg").textContent = "";
+  }catch(e){ getEl("authMsg").textContent = e.message; }
 };
 
-window.login = async () => {
-  const email = $("authEmail").value.trim();
-  const pass = $("authPass").value;
-  if(!email || !pass) return $("authMsg").textContent = "Enter email + password";
-  $("authMsg").textContent = "Logging in...";
+window.doLogin = async function(){
+  var email = getEl("authEmail").value;
+  var pass = getEl("authPass").value;
+  if(email === "" || pass === ""){ getEl("authMsg").textContent = "Enter email and password"; return; }
+  getEl("authMsg").textContent = "Logging in...";
   try{
     await signInWithEmailAndPassword(auth, email, pass);
-    $("authMsg").textContent = "";
-  }catch(e){ $("authMsg").textContent = e.message; }
+    getEl("authMsg").textContent = "";
+  }catch(e){ getEl("authMsg").textContent = e.message; }
 };
 
-window.resetPass = async () => {
-  const email = $("authEmail").value.trim();
-  if(!email) return alert("Type your email first");
-  try{ await sendPasswordResetEmail(auth, email); alert("Password reset email sent to " + email); }
-  catch(e){ alert(e.message); }
+window.doReset = async function(){
+  var email = getEl("authEmail").value;
+  if(email === ""){ alert("Type your email first"); return; }
+  try{ await sendPasswordResetEmail(auth, email); alert("Reset email sent"); }catch(e){ alert(e.message); }
 };
 
-window.logout = async () => { await signOut(auth); };
+window.doLogout = async function(){ await signOut(auth); };
 
-window.createPost = async () => {
-  if(!currentUser) return alert("Login first");
-  const title = $("postTitle").value.trim();
-  const text = $("postText").value.trim();
-  const type = $("postType").value;
-  const image = $("postImage").value.trim();
-  if(!title || !text) return $("postMsg").textContent = "Add Title + Details";
-  let form = null;
-  $("postMsg").textContent = "Posting...";
+window.doPost = async function(){
+  if(currentUser === null){ alert("Login first"); return; }
+  var title = getEl("postTitle").value;
+  var text = getEl("postText").value;
+  var type = getEl("postType").value;
+  var image = getEl("postImage").value;
+  if(title === "" || text === ""){ getEl("postMsg").textContent = "Add Title and Details"; return; }
+  getEl("postMsg").textContent = "Posting...";
   try{
-    await addDoc(collection(db,"posts"), { title, text, type, image, form, authorName: currentUserData?.name  currentUser.displayName  "User", authorId: currentUser.uid, likes: [], createdAt: serverTimestamp() });
-    $("postTitle").value=""; $("postText").value=""; $("postImage").value=""; $("useForm").checked=false; $("formBuilder").classList.add("hidden");
-    $("postMsg").textContent = "Posted!";
-    setTimeout(()=>$("postMsg").textContent="",2000);
-  }catch(e){ $("postMsg").textContent = e.message; }
+    await addDoc(collection(db, "posts"), {title: title, text: text, type: type, image: image, authorName: currentName, authorId: currentUser.uid, createdAt: serverTimestamp()});
+    getEl("postTitle").value = "";
+    getEl("postText").value = "";
+    getEl("postImage").value = "";
+    getEl("postMsg").textContent = "Posted!";
+  }catch(e){ getEl("postMsg").textContent = e.message; }
 };
 
-window.likePost = async (id, likes) => {
-  if(!currentUser) return alert("Login to like");
-  const has = (likes||[]).includes(currentUser.uid);
-  const ref = doc(db,"posts",id);
-  if(has) await updateDoc(ref,{ likes: (likes||[]).filter(u=>u!==currentUser.uid) });
-  else await updateDoc(ref,{ likes: arrayUnion(currentUser.uid) });
-};
-
-window.submitForm = async (postId, formTitle) => {
-  const a1 = prompt(formTitle + " - Q1:");
-  if(a1===null) return;
-  const a2 = prompt("Q2:");
-  const a3 = prompt("Q3 (optional):");
-  try{
-    await addDoc(collection(db,"formResponses"), { postId, name: a1, answer2: a2||"", answer3: a3||"", userId: currentUser?.uid||"guest", createdAt: serverTimestamp() });
-    alert("Form submitted! Thank you.");
-  }catch(e){ alert(e.message); }
-};
-
-function escapeHtml(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-
-function renderFeed(){
-  const feed = $("feed");
-  const list = allPosts.filter(p=> currentFilter==="All" || p.type===currentFilter);
-  if(list.length===0){ feed.innerHTML = "<div class='card' style='text-align:center'>No posts yet in this category. Be the first to post!</div>"; return; }
-  feed.innerHTML = list.map(p=>{
-    const isImg = p.image && (p.image.includes(".jpg")||p.image.includes(".png")||p.image.includes(".jpeg")||p.image.includes("images")||p.image.includes("i.imgur")||p.image.includes("unsplash"));
-    const media = !p.image ? "" : isImg ? <img class="post-img" src="${escapeHtml(p.image)}"> : <p><a href="${escapeHtml(p.image)}" target="_blank">🔗 Open Link / Video</a></p>;
-    const formHtml = p.form ? <div class="form-box"><b>📋 ${escapeHtml(p.form.title)}</b><p class="small">1. ${escapeHtml(p.form.q1)}<br>2. ${escapeHtml(p.form.q2)}${p.form.q3?`<br>3. ${escapeHtml(p.form.q3)}:""}</p><button class="btn-small" onclick="submitForm('${p.id}','${escapeHtml(p.form.title)}')">Fill Form</button></div>` : "";
-    return <div class="card"><span class="badge">${escapeHtml(p.type)}</span><h3 style="margin:8px 0 4px">${escapeHtml(p.title)}</h3><p style="white-space:pre-wrap;margin:6px 0">${escapeHtml(p.text)}</p><p class="small">By ${escapeHtml(p.authorName)} • ${(p.likes||[]).length} likes</p>${media}${formHtml}<button class="btn-small" style="margin-top:10px" onclick="likePost('${p.id}', ${JSON.stringify(p.likes||[])})">❤️ Like (${(p.likes||[]).length})</button></div>;
-  }).join("");
+function showFeed(){
+  var feed = getEl("feed");
+  if(allPosts.length === 0){ feed.innerHTML = "<div class='card' style='text-align:center'>No posts yet. Be the first!</div>"; return; }
+  var html = "";
+  for(var i=0;i<allPosts.length;i++){
+    var p = allPosts[i];
+    var imgHtml = "";
+    if(p.image && p.image !== ""){ imgHtml = "<img class='post-img' src='" + p.image + "'>"; }
+    html = html + "<div class='card'><span class='badge'>" + p.type + "</span><h3>" + p.title + "</h3><p>" + p.text + "</p><p class='small'>By " + p.authorName + "</p>" + imgHtml + "</div>";
+  }
+  feed.innerHTML = html;
 }
 
-onAuthStateChanged(auth, async (user)=>{
+onAuthStateChanged(auth, async function(user){
   if(user){
     currentUser = user;
+    currentName = user.displayName || "User";
     try{
-      const snap = await getDoc(doc(db,"users",user.uid));
-      if(snap.exists()) currentUserData = snap.data();
-      else { currentUserData = { name: user.displayName||"User", email: user.email }; await setDoc(doc(db,"users",user.uid), currentUserData); }
-    }catch(e){ currentUserData = { name: user.displayName||"User", email: user.email }; }
-    $("authScreen").classList.add("hidden");
-    $("mainScreen").classList.remove("hidden");
-    $("headerUser").innerHTML = <span class="small">Hi, ${escapeHtml(currentUserData.name)}</span> <button onclick="logout()">Logout</button>;
+      var snap = await getDoc(doc(db, "users", user.uid));
+      if(snap.exists()){ currentName = snap.data().name; }
+    }catch(e){}
+    getEl("authScreen").classList.add("hidden");
+    getEl("mainScreen").classList.remove("hidden");
+    getEl("headerUser").innerHTML = "Hi, " + currentName + " <button onclick='doLogout()'>Logout</button>";
   } else {
     currentUser = null;
-    $("authScreen").classList.remove("hidden");
-    $("mainScreen").classList.add("hidden");
-    $("headerUser").innerHTML = "";
+    getEl("authScreen").classList.remove("hidden");
+    getEl("mainScreen").classList.add("hidden");
+    getEl("headerUser").innerHTML = "";
   }
 });
 
-const q = query(collection(db,"posts"), orderBy("createdAt","desc"));
-onSnapshot(q, (snap)=>{
-  allPosts = snap.docs.map(d=>({ id: d.id, ...d.data() }));
-  if(currentUser) renderFeed();
+var q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+onSnapshot(q, function(snap){
+  allPosts = [];
+  snap.forEach(function(d){ var data = d.data(); data.id = d.id; allPosts.push(data); });
+  if(currentUser !== null){ showFeed(); }
 });
 </script>
 </body>
