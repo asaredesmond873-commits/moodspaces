@@ -147,9 +147,6 @@ window.createPost = async () => {
   const image = $("postImage").value.trim();
   if(!title || !text) return $("postMsg").textContent = "Add Title + Details";
   let form = null;
-  if($("useForm").checked){
-    form = { title: $("formTitle").value.trim()  "Fill this form", q1: $("formQ1").value.trim()  "Your Name", q2: $("formQ2").value.trim()  "Phone", q3: $("formQ3").value.trim()  "" };
-  }
   $("postMsg").textContent = "Posting...";
   try{
     await addDoc(collection(db,"posts"), { title, text, type, image, form, authorName: currentUserData?.name  currentUser.displayName  "User", authorId: currentUser.uid, likes: [], createdAt: serverTimestamp() });
