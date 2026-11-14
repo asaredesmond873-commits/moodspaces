@@ -24,12 +24,16 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #d1d5db;border-ra
 .small{font-size:13px;color:#6b7280}
 .hidden{display:none}
 .postimg{width:100%;border-radius:10px;margin-top:10px}
+.postvid{width:100%;border-radius:10px;margin-top:10px;background:#000;max-height:480px}
 .formbox{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;margin-top:12px}
 .cbox{background:#f9fafb;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:14px}
 .av{width:42px;height:42px;border-radius:50%;background:#0a1a3a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0}
 .topbar{display:flex;gap:10px;overflow-x:auto;padding:8px 0}
-.topitem{min-width:68px;text-align:center;font-size:12px;font-weight:bold;color:#0a1a3a}
-.topcircle{width:56px;height:56px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto;border:2px solid #d4af37}
+.topitem{min-width:70px;text-align:center;font-size:12px;font-weight:bold;color:#0a1a3a;cursor:pointer}
+.topcircle{width:58px;height:58px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto;border:2px solid #d4af37;overflow:hidden}
+.topcircle img{width:100%;height:100%;object-fit:cover}
+.topcircle video{width:100%;height:100%;object-fit:cover}
+.filelabel{background:#f3f4f6;border:2px dashed #d4af37;border-radius:10px;padding:14px;text-align:center;display:block;cursor:pointer;color:#0a1a3a;font-weight:bold;margin:7px 0}
 </style>
 </head>
 <body>
@@ -50,13 +54,7 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #d1d5db;border-ra
 </div>
 
 <div class="wrap hidden" id="mainScreen">
-<div class="topbar">
-<div class="topitem"><div class="topcircle">AF</div>Africa</div>
-<div class="topitem"><div class="topcircle">MU</div>Music</div>
-<div class="topitem"><div class="topcircle">FL</div>Film</div>
-<div class="topitem"><div class="topcircle">EV</div>Events</div>
-<div class="topitem"><div class="topcircle">VR</div>Verified</div>
-</div>
+<div class="topbar" id="storyBar"></div>
 
 <div class="tabs">
 <div class="tab on" onclick="setFilter('All',this)">All</div>
@@ -66,10 +64,11 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #d1d5db;border-ra
 </div>
 
 <div class="card">
-<div style="display:flex;gap:10px;align-items:center"><div class="av" id="myAvatar">M</div><b id="myNameLabel">Share something</b></div>
-<select id="postType"><option>Announcement</option><option>Promo</option><option>Event</option></select>
-<input id="postTitle" placeholder="Title"><textarea id="postText" rows="3" placeholder="Write details"></textarea>
-<input id="postImage" placeholder="Photo or Video link (optional)">
+<div style="display:flex;gap:10px;align-items:center"><div class="av" id="myAvatar">M</div><b id="myNameLabel">Share something</b></div><select id="postType"><option>Announcement</option><option>Promo</option><option>Event</option></select>
+<input id="postTitle" placeholder="Title">
+<textarea id="postText" rows="3" placeholder="Write details"></textarea>
+<label class="filelabel">Tap to pick Photo or Video from Phone Gallery<input type="file" id="postFile" accept="image/*,video/*" style="display:none" onchange="previewFile()"></label>
+<div id="previewBox"></div>
 <label style="font-size:14px"><input type="checkbox" id="useForm" style="width:auto" onchange="showFormBox()"> Add Form to this post</label>
 <div id="formBuilder" class="formbox hidden">
 <b>Form</b>
@@ -88,6 +87,8 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #d1d5db;border-ra
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc, setDoc, serverTimestamp, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+var CLOUD = "demo";
+var PRESET = "docs_upload_example_us_preset";
 var firebaseConfig = {
 apiKey: "AIzaSyBHp8ica_4LhPVYYyxhQz70x7ad2x-cOJM",
 authDomain: "moodspaceafrica.firebaseapp.com",
@@ -103,11 +104,34 @@ var currentUser = null;
 var currentName = "User";
 var currentVerified = false;
 var allPosts = [];
+var allStories = [];
 var currentFilter = "All";
+var selectedFile = null;
 function getEl(id){ return document.getElementById(id); }
 function esc(s){
 if(s === null || s === undefined){ return ""; }
 return String(s).replace(/&/g, "and").replace(/</g, "").replace(/>/g, "");
+}
+function isVid(u){
+if(!u){ return false; }
+var x = u.toLowerCase();
+if(x.indexOf(".mp4") > -1){ return true; }
+if(x.indexOf(".mov") > -1){ return true; }
+if(x.indexOf("/video/") > -1){ return true; }
+return false;
+}
+async function uploadFree(file){
+var fd = new FormData();
+fd.append("file", file);
+fd.append("upload_preset", PRESET);
+var base = "https://api.cloudinary.com";
+var mid = "/v1_1/";
+var end = "/auto/upload";
+var full = base + mid + CLOUD + end;
+var res = await fetch(full, {method: "POST", body: fd});
+var data = await res.json();
+if(data.secure_url){ return data.secure_url; }
+throw new Error("Upload failed. Try smaller file.");
 }
 window.showFormBox = function(){
 if(getEl("useForm").checked){ getEl("formBuilder").classList.remove("hidden"); }
@@ -119,6 +143,17 @@ var tabs = document.querySelectorAll(".tab");
 for(var i=0;i<tabs.length;i++){ tabs[i].classList.remove("on"); }
 if(el){ el.classList.add("on"); }
 showFeed();
+};
+window.previewFile = function(){
+var inp = getEl("postFile");
+if(inp.files.length === 0){ return; }
+selectedFile = inp.files[0];
+var url = URL.createObjectURL(selectedFile);
+if(selectedFile.type.indexOf("video") > -1){
+getEl("previewBox").innerHTML = "<video src='" + url + "' controls style='width:100%;border-radius:10px'></video>";
+} else {
+getEl("previewBox").innerHTML = "<img src='" + url + "' style='width:100%;border-radius:10px'>";
+}
 };
 window.doSignup = async function(){
 var name = getEl("authName").value;
@@ -156,8 +191,17 @@ window.doPost = async function(){
 if(currentUser === null){ alert("Login first"); return; }
 var title = getEl("postTitle").value;
 var text = getEl("postText").value;
-var type = getEl("postType").value;var image = getEl("postImage").value;
+var type = getEl("postType").value;
 if(title === "" || text === ""){ getEl("postMsg").textContent = "Add Title and Details"; return; }
+getEl("postMsg").textContent = "Uploading FREE. Please wait.";
+var mediaUrl = "";
+var mediaType = "none";
+try{
+if(selectedFile !== null){
+mediaUrl = await uploadFree(selectedFile);
+if(selectedFile.type.indexOf("video") > -1){ mediaType = "video"; }
+else { mediaType = "image"; }
+}
 var form = null;
 if(getEl("useForm").checked){
 var ft = getEl("formTitle").value;
@@ -169,21 +213,37 @@ if(fq1 === ""){ fq1 = "Your Name"; }
 if(fq2 === ""){ fq2 = "Phone"; }
 form = {title: ft, q1: fq1, q2: fq2, q3: fq3};
 }
-getEl("postMsg").textContent = "Posting...";
-try{
-await addDoc(collection(db, "posts"), {title: title, text: text, type: type, image: image, form: form, authorName: currentName, authorId: currentUser.uid, verified: currentVerified, likes: [], comments: [], createdAt: serverTimestamp()});
+await addDoc(collection(db, "posts"), {title: title, text: text, type: type, image: mediaUrl, mediaType: mediaType, form: form, authorName: currentName, authorId: currentUser.uid, verified: currentVerified, likes: [], comments: [], createdAt: serverTimestamp()});
 getEl("postTitle").value = "";
 getEl("postText").value = "";
-getEl("postImage").value = "";
+getEl("postFile").value = "";
+getEl("previewBox").innerHTML = "";
+selectedFile = null;
 getEl("useForm").checked = false;
 getEl("formBuilder").classList.add("hidden");
 getEl("postMsg").textContent = "Posted";
 }catch(e){ getEl("postMsg").textContent = e.message; }
 };
-window.doLike = async function(id){
-if(currentUser === null){ alert("Login to like"); return; }
-var post = null;
-for(var i=0;i<allPosts.length;i++){ if(allPosts[i].id === id){ post = allPosts[i]; } }
+window.addStory = async function(){
+if(currentUser === null){ alert("Login first"); return; }
+var inp = document.createElement("input");
+inp.type = "file";
+inp.accept = "image/*,video/*";
+inp.onchange = async function(){
+var file = inp.files[0];
+if(!file){ return; }
+var txt = prompt("Add text to story optional:");
+if(txt === null){ txt = ""; }
+try{
+var url = await uploadFree(file);
+var mType = "image";
+if(file.type.indexOf("video") > -1){ mType = "video"; }
+await addDoc(collection(db, "stories"), {media: url, mediaType: mType, text: txt, authorName: currentName, authorId: currentUser.uid, verified: currentVerified, createdAt: serverTimestamp()});
+alert("Story posted");
+}catch(e){ alert(e.message); }
+};
+inp.click();
+};length;i++){ if(allPosts[i].id === id){ post = allPosts[i]; } }
 if(post === null){ return; }
 var likes = post.likes;
 if(likes === undefined){ likes = []; }
@@ -223,6 +283,18 @@ await addDoc(collection(db, "formResponses"), {postId: postId, name: a1, answer2
 alert("Form submitted. Thank you.");
 }catch(e){ alert(e.message); }
 };
+function showStories(){
+var bar = getEl("storyBar");
+var html = "<div class='topitem' onclick=\"addStory()\"><div class='topcircle'>+</div>Add Story</div>";
+for(var i=0;i<allStories.length;i++){
+var s = allStories[i];
+var inner = "";
+if(s.mediaType === "video"){ inner = "<video src='" + esc(s.media) + "' muted></video>"; }
+else { inner = "<img src='" + esc(s.media) + "'>"; }
+html = html + "<div class='topitem' onclick=\"viewStory('" + esc(s.media) + "','" + esc(s.mediaType) + "','" + esc(s.text) + "')\"><div class='topcircle'>" + inner + "</div>" + esc(s.authorName) + "</div>";
+}
+bar.innerHTML = html;
+}
 function showFeed(){
 var feed = getEl("feed");
 var list = [];
@@ -237,8 +309,7 @@ var verifiedHtml = "";
 if(p.verified === true){ verifiedHtml = " <span class='verified'>Verified</span>"; }
 var mediaHtml = "";
 if(p.image && p.image !== ""){
-var low = p.image.toLowerCase();
-if(low.indexOf(".mp4") > -1 || low.indexOf("youtube") > -1){ mediaHtml = "<p><a href='" + esc(p.image) + "' target='_blank'>Watch Video</a></p>"; }
+if(p.mediaType === "video" || isVid(p.image)){ mediaHtml = "<video class='postvid' src='" + esc(p.image) + "' controls playsinline></video>"; }
 else { mediaHtml = "<img class='postimg' src='" + esc(p.image) + "'>"; }
 }
 var formHtml = "";
@@ -293,6 +364,23 @@ allPosts = [];
 snap.forEach(function(d){ var data = d.data(); data.id = d.id; allPosts.push(data); });
 if(currentUser !== null){ showFeed(); }
 });
+var q2 = query(collection(db, "stories"), orderBy("createdAt", "desc"));
+onSnapshot(q2, function(snap){
+allStories = [];
+snap.forEach(function(d){ var data = d.data(); data.id = d.id; allStories.push(data); });
+if(currentUser !== null){ showStories(); }
+});
 </script>
 </body>
 </html>
+window.viewStory = function(url, mType, txt){
+var w = window.open("", "_blank");
+var tag = "";
+if(mType === "video"){ tag = "<video src='" + url + "' controls autoplay style='width:100%'></video>"; }
+else { tag = "<img src='" + url + "' style='width:100%'>"; }
+w.document.write("<body style='background:#000;color:#fff;font-family:Arial;text-align:center'><h2>" + txt + "</h2>" + tag + "</body>");
+};
+window.doLike = async function(id){
+if(currentUser === null){ alert("Login to like"); return; }
+var post = null;
+for(var i=0;i<allPosts.
