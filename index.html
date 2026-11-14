@@ -29,7 +29,6 @@ button{border:0;border-radius:8px;padding:11px 16px;font-weight:700;cursor:point
 <body>
 <header><div class="logo">MoodSpace <span>GH</span></div><div id="headerUser"></div></header>
 
-<!-- AUTH -->
 <div class="wrap" id="authScreen">
   <div class="card" style="text-align:center">
     <h2 style="margin:4px 0">Welcome to MoodSpace GH</h2>
@@ -44,7 +43,6 @@ button{border:0;border-radius:8px;padding:11px 16px;font-weight:700;cursor:point
   </div>
 </div>
 
-<!-- MAIN -->
 <div class="wrap hidden" id="mainScreen">
   <div class="tabs" id="tabs">
     <div class="tab active" onclick="setFilter('All',this)">All</div>
@@ -65,8 +63,7 @@ button{border:0;border-radius:8px;padding:11px 16px;font-weight:700;cursor:point
       <input id="formTitle" placeholder="Form Title - e.g. Book Your Slot">
       <input id="formQ1" placeholder="Question 1 - e.g. Your Name">
       <input id="formQ2" placeholder="Question 2 - e.g. Phone / WhatsApp">
-      <input id="formQ3" placeholder="Question 3 - e.g.How many tickets? (optional)">
-      <p class="small">Fans will fill this. You will see responses in your post.</p>
+      <input id="formQ3" placeholder="Question 3 - e.g. How many tickets? (optional)"><p class="small">Fans will fill this. You will see responses in your post.</p>
     </div>
     <button class="btn-primary" style="margin-top:10px" onclick="createPost()">Post Now</button>
     <p id="postMsg" class="small"></p>
@@ -80,16 +77,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc, setDoc, serverTimestamp, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ===== PASTE YOUR FIREBASE CONFIG HERE =====
 const firebaseConfig = {
-  apiKey: "PASTE_YOUR_API_KEY",
-  authDomain: "PASTE_YOUR_PROJECT.firebaseapp.com",
-  projectId: "PASTE_YOUR_PROJECT_ID",
-  storageBucket: "PASTE_YOUR_PROJECT.appspot.com",
-  messagingSenderId: "PASTE_YOUR_SENDER_ID",
-  appId: "PASTE_YOUR_APP_ID"
+  apiKey: "AIzaSyBHp8ica_4LhPVYYyxhQz70x7ad2x-cOJM",
+  authDomain: "moodspaceafrica.firebaseapp.com",
+  projectId: "moodspaceafrica",
+  storageBucket: "moodspaceafrica.firebasestorage.app",
+  messagingSenderId: "449390027692",
+  appId: "1:449390027692:web:8651532b91c5ea3e82d009"
 };
-// =============================================
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -159,7 +154,8 @@ window.createPost = async () => {
   try{
     await addDoc(collection(db,"posts"), { title, text, type, image, form, authorName: currentUserData?.name  currentUser.displayName  "User", authorId: currentUser.uid, likes: [], createdAt: serverTimestamp() });
     $("postTitle").value=""; $("postText").value=""; $("postImage").value=""; $("useForm").checked=false; $("formBuilder").classList.add("hidden");
-    $("postMsg").textContent = "Posted!";setTimeout(()=>$("postMsg").textContent="",2000);
+    $("postMsg").textContent = "Posted!";
+    setTimeout(()=>$("postMsg").textContent="",2000);
   }catch(e){ $("postMsg").textContent = e.message; }
 };
 
