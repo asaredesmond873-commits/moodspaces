@@ -3,82 +3,223 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MoodSpace Africa - Entertainment Social</title>
+<title>MoodSpace GH - V3</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif}
-body{background:#0f0f12;color:#fff;min-height:100vh}
-header{position:sticky;top:0;background:#0f0f12cc;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #222;z-index:10}
-.logo{font-weight:900;font-size:20px}.logo span{color:#ff5a8a}
-button{border:0;cursor:pointer;border-radius:999px;padding:10px 16px;font-weight:700}
-.btn-pink{background:#ff5a8a;color:#fff}.btn-ghost{background:#222;color:#fff}.btn-sm{padding:6px 12px;font-size:13px}.btn-green{background:#00c2a8;color:#000}
-.wrap{max-width:560px;margin:0 auto;padding:16px;padding-bottom:90px}
-.card{background:#1a1a20;border:1px solid #2a2a33;border-radius:18px;padding:16px;margin-bottom:14px}
-input,textarea,select{width:100%;background:#111;padding:12px;border-radius:12px;border:1px solid #333;color:#fff;margin:8px 0;outline:none}
-.avatar{width:44px;height:44px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover}
-.badge{display:inline-block;font-size:11px;padding:3px 8px;border-radius:999px;margin-left:5px;font-weight:800}
-.b-creator{background:#ff5a8a}.b-business{background:#00c2a8;color:#000}.b-announce{background:#ffcc00;color:#000}.b-promo{background:#a855f7}.b-event{background:#3b82f6}
-.post-img{width:100%;border-radius:14px;margin-top:10px;max-height:380px;object-fit:cover}
-.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.hidden{display:none!important}
-.tabs{display:flex;gap:8px;margin:12px 0;overflow:auto}.tab{white-space:nowrap}.tab.active{background:#fff;color:#000}
-small{color:#aaa}.nav{position:fixed;bottom:0;left:0;right:0;background:#15151a;border-top:1px solid #222;display:flex;justify-content:space-around;padding:12px}.nav button{background:none;color:#aaa}.nav button.active{color:#ff5a8a}
-.comment{background:#111;padding:10px;border-radius:12px;margin-top:8px;font-size:14px}
-.form-box{background:#111;border:1px dashed #ff5a8a;padding:12px;border-radius:14px;margin-top:12px}
-.response{background:#0f0f12;padding:10px;border-radius:10px;margin-top:8px;font-size:13px;border:1px solid #333}
-.video-wrap{margin-top:10px;border-radius:14px;overflow:hidden}.video-wrap iframe,.video-wrap video{width:100%;height:320px;border:0;background:#000}
-.checkbox-row{display:flex;align-items:center;gap:8px;margin:8px 0}.checkbox-row input{width:auto;margin:0}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f0f2f5;color:#111}
+header{background:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,.1);position:sticky;top:0;z-index:10}
+.logo{font-weight:900;font-size:20px} .logo span{color:#7c3aed}
+.wrap{max-width:700px;margin:16px auto;padding:0 12px}
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+input,select,textarea{width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;margin:7px 0;font-size:15px}
+button{border:0;border-radius:8px;padding:11px 16px;font-weight:700;cursor:pointer}
+.btn-primary{background:#7c3aed;color:#fff;width:100%}
+.btn-secondary{background:#e5e7eb;width:100%;margin-top:8px}
+.btn-small{background:#7c3aed;color:#fff;padding:8px 12px}
+.tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tab{background:#fff;border:1px solid #ddd;border-radius:999px;padding:8px 14px;cursor:pointer}
+.tab.active{background:#111;color:#fff}
+.badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;background:#ede9fe}
+.hidden{display:none!important}
+.post-img{width:100%;border-radius:10px;margin-top:10px;max-height:380px;object-fit:cover}
+.form-box{background:#f9f5ff;border:1px dashed #a78bfa;border-radius:10px;padding:12px;margin-top:12px}
+.small{font-size:13px;color:#666}
+#authMsg{color:red;font-size:14px;min-height:18px;text-align:center}
 </style>
 </head>
 <body>
-<header><div class="logo">Mood<span>Space</span> Africa</div><div><span id="myName"></span> <button class="btn-ghost btn-sm" onclick="showPage('profile')">Profile</button> <button class="btn-ghost btn-sm hidden" id="logoutBtn" onclick="logout()">Logout</button></div></header>
-<div class="wrap">
-<div id="page-auth" class="card"><h2>Welcome to MoodSpace 🇬🇭</h2><p><small>Post Announcements, Promos, Events, Videos. Fans fill your forms.</small></p><input id="authName" placeholder="Your Name"><input id="authEmail" placeholder="Email" type="email"><input id="authPass" placeholder="Password (6+ chars)" type="password"><button class="btn-pink" style="width:100%" onclick="signup()">Create Account</button><button class="btn-ghost" style="width:100%;margin-top:8px" onclick="login()">Login</button><button class="btn-ghost" style="width:100%;margin-top:8px" onclick="resetPass()">Forgot Password?</button><p id="authMsg"><small></small></p></div>
-<div id="page-feed" class="hidden"><div class="tabs"><button class="tab active btn-ghost" onclick="setFilter('all',this)">All 🌍</button><button class="tab btn-ghost" onclick="setFilter('Announcement',this)">Announcements 📢</button><button class="tab btn-ghost" onclick="setFilter('Promo',this)">Promo 📣</button><button class="tab btn-ghost" onclick="setFilter('Event',this)">Events 🎉</button><button class="tab btn-ghost" onclick="setFilter('Creator',this)">Creators 🎨</button><button class="tab btn-ghost" onclick="setFilter('Business',this)">Businesses 🏪</button><button class="tab btn-ghost" onclick="setFilter('Following',this)">Following ❤️</button></div>
-<div class="card">
-<div style="display:flex;gap:10px"><div class="avatar" id="composerAvatar">😊</div><textarea id="postText" rows="2" placeholder="Post an Announcement, Promo, Event... e.g. Audition in Osu this Saturday!"></textarea></div>
-<input type="file" id="postFile" accept="image/*">
-<input id="postImg" placeholder="Or paste image link (optional)">
-<input id="postVideo" placeholder="Video link: YouTube / TikTok / MP4 link (optional)">
-<select id="postCat"><option value="Announcement">📢 Announcement</option><option value="Promo">📣 Promo</option><option value="Event">🎉 Event</option><option value="Creator">Creator Post 🎨</option><option value="Business">Business Post 🏪</option><option value="Mood">Mood 💭</option></select>
-<div class="checkbox-row"><input type="checkbox" id="hasForm" onchange="document.getElementById('formQs').classList.toggle('hidden',!this.checked)"> <b>📋 Add a Form to this post</b> <small> - people will fill it</small></div>
-<div id="formQs" class="hidden"><textarea id="formQuestions" rows="3" placeholder="Type your form questions, one per line. Example:&#10;Your Full Name?&#10;Your Phone / WhatsApp?&#10;Your Talent?&#10;Why should we pick you?"></textarea><small>Each line = one question. Watchers will answer all.</small></div>
-<button class="btn-pink" style="width:100%" id="postBtn" onclick="createPost()">Post Announcement / Promo →</button><p id="uploadStatus"><small></small></p>
+<header><div class="logo">MoodSpace <span>GH</span></div><div id="headerUser"></div></header>
+
+<!-- AUTH -->
+<div class="wrap" id="authScreen">
+  <div class="card" style="text-align:center">
+    <h2 style="margin:4px 0">Welcome to MoodSpace GH</h2>
+    <p class="small">Post Announcements, Promos, Events, Videos. Fans fill your forms.</p>
+    <input id="authName" placeholder="Full Name (for Create Account only)">
+    <input id="authEmail" placeholder="Email" type="email">
+    <input id="authPass" placeholder="Password (6+ chars)" type="password">
+    <div id="authMsg"></div>
+    <button class="btn-primary" onclick="login()">Login</button>
+    <button class="btn-secondary" onclick="signup()">Create Account</button>
+    <p><a href="#" onclick="resetPass();return false;">Forgot Password?</a></p>
+  </div>
 </div>
-<div id="posts"></div></div>
-<div id="page-profile" class="hidden"><div class="card" style="text-align:center"><div class="avatar" style="width:90px;height:90px;margin:0 auto;font-size:36px" id="profileAvatar">😊</div><h3 id="profileName" style="margin-top:10px"></h3><p id="profileEmail"><small></small></p><p id="profileBioText" style="margin:8px 0"></p><div id="profileBadges"></div><p><small id="followCount"></small></p></div><div class="card"><h3>Edit Profile</h3><input id="editName" placeholder="Name"><input id="editPhoto" placeholder="Profile photo link"><textarea id="editBio" placeholder="Bio - e.g. Event Organizer in Accra"></textarea><select id="editType"><option value="User">Normal User</option><option value="Creator">Creator 🎨</option><option value="Business">Business 🏪</option></select><input id="editLocation" placeholder="Location - e.g. Accra, Osu"><button class="btn-pink" style="width:100%" onclick="saveProfile()">Save Profile</button></div></div>
+
+<!-- MAIN -->
+<div class="wrap hidden" id="mainScreen">
+  <div class="tabs" id="tabs">
+    <div class="tab active" onclick="setFilter('All',this)">All</div>
+    <div class="tab" onclick="setFilter('Announcement',this)">Announcements 📢</div>
+    <div class="tab" onclick="setFilter('Promo',this)">Promo 📣</div>
+    <div class="tab" onclick="setFilter('Event',this)">Events 🎉</div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 6px">Post an Announcement, Promo, Event...</h3>
+    <select id="postType"><option value="Announcement">Announcement 📢</option><option value="Promo">Promo 📣</option><option value="Event">Event 🎉</option></select>
+    <input id="postTitle" placeholder="Title - e.g. New Single Out Now!">
+    <textarea id="postText" rows="3" placeholder="Write details... Date, venue, link, price..."></textarea>
+    <input id="postImage" placeholder="Image / Video link (optional) - paste YouTube or image URL">
+    <label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" id="useForm" style="width:auto" onchange="document.getElementById('formBuilder').classList.toggle('hidden',!this.checked)"> 📋 Add a Form to this post</label>
+    <div id="formBuilder" class="form-box hidden">
+      <b>Form Builder</b>
+      <input id="formTitle" placeholder="Form Title - e.g. Book Your Slot">
+      <input id="formQ1" placeholder="Question 1 - e.g. Your Name">
+      <input id="formQ2" placeholder="Question 2 - e.g. Phone / WhatsApp">
+      <input id="formQ3" placeholder="Question 3 - e.g.How many tickets? (optional)">
+      <p class="small">Fans will fill this. You will see responses in your post.</p>
+    </div>
+    <button class="btn-primary" style="margin-top:10px" onclick="createPost()">Post Now</button>
+    <p id="postMsg" class="small"></p>
+  </div>
+
+  <div id="feed"></div>
 </div>
-<div class="nav"><button class="active" onclick="showPage('feed',this)">🏠 Feed</button><button onclick="showPage('profile',this)">👤 Profile</button><button onclick="alert('Post an Announcement or Promo, add a Form, and fans will fill it!')">✨ Discover</button></div>
+
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,addDoc,query,orderBy,onSnapshot,doc,setDoc,getDoc,updateDoc,deleteDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const firebaseConfig={apiKey:"AIzaSyBHp8ica_4LhPVYYyxhQz70x7ad2x-cOJM",authDomain:"moodspaceafrica.firebaseapp.com",projectId:"moodspaceafrica",storageBucket:"moodspaceafrica.firebasestorage.app",messagingSenderId:"449390027692",appId:"1:449390027692:web:8651532b91c5ea3e82d009"};
-const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);
-let me=null,myProfile={},filter='all',allPosts=[],commentsCache={},responsesCache={};
-window.showPage=(p,btn)=>{if(!me && p!=='auth'){p='auth';}['feed','profile','auth'].forEach(x=>document.getElementById('page-'+x).classList.add('hidden'));document.getElementById('page-'+p).classList.remove('hidden');if(btn){document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}if(p==='profile')loadProfileForm();};
-window.setFilter=(f,btn)=>{filter=f;document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderPosts();};
-window.signup=async()=>{try{const c=await createUserWithEmailAndPassword(auth,document.getElementById('authEmail').value,document.getElementById('authPass').value);await setDoc(doc(db,"users",c.user.uid),{name:document.getElementById('authName').value||document.getElementById('authEmail').value.split('@')[0],email:document.getElementById('authEmail').value,bio:"",photo:"",type:"User",location:"Accra",following:[],createdAt:serverTimestamp()});}catch(e){document.getElementById('authMsg').innerText=e.message;}};
-window.login=async()=>{try{await signInWithEmailAndPassword(auth,document.getElementById('authEmail').value,document.getElementById('authPass').value);}catch(e){document.getElementById('authMsg').innerText=e.message;}};
-window.logout=async()=>{await signOut(auth);};
-window.resetPass=async()=>{const em=document.getElementById('authEmail')?.value||me?.email;if(!em)return alert("Enter email first");await sendPasswordResetEmail(auth,em);alert("Reset email sent to "+em);};
-window.saveProfile=async()=>{await updateDoc(doc(db,"users",me.uid),{name:document.getElementById('editName').value,photo:document.getElementById('editPhoto').value,bio:document.getElementById('editBio').value,type:document.getElementById('editType').value,location:document.getElementById('editLocation').value});alert("Saved!");showPage('feed');};
-window.createPost=async()=>{const t=document.getElementById('postText').value;if(!t)return alert("Write your announcement / promo");document.getElementById('postBtn').innerText="Posting...";let imgUrl=document.getElementById('postImg').value;const file=document.getElementById('postFile').files[0];if(file){document.getElementById('uploadStatus').innerText="Compressing photo...";imgUrl=await new Promise((res)=>{const reader=new FileReader();reader.onload=(e)=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');const max=800;let w=img.width,h=img.height;if(w>max){h=h*max/w;w=max;}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);res(canvas.toDataURL('image/jpeg',0.7));};img.src=e.target.result;};reader.readAsDataURL(file);});}
-let formQs=[];if(document.getElementById('hasForm').checked){formQs=document.getElementById('formQuestions').value.split('\n').map(s=>s.trim()).filter(Boolean);}
-await addDoc(collection(db,"posts"),{text:t,image:imgUrl,video:document.getElementById('postVideo').value,category:document.getElementById('postCat').value,formQuestions:formQs,authorName:myProfile.name||me.email,authorPhoto:myProfile.photo||"",authorType:myProfile.type||"User",uid:me.uid,likes:[],createdAt:serverTimestamp()});document.getElementById('postText').value="";document.getElementById('postImg').value="";document.getElementById('postVideo').value="";document.getElementById('postFile').value="";document.getElementById('formQuestions').value="";document.getElementById('hasForm').checked=false;document.getElementById('formQs').classList.add('hidden');document.getElementById('uploadStatus').innerText="";document.getElementById('postBtn').innerText="Post Announcement / Promo →";alert("Posted!");};
-window.likePost=async(id,likes)=>{if(!me)return alert("Login to like");let l=[...(likes||[])];if(l.includes(me.uid))l=l.filter(x=>x!==me.uid);else l.push(me.uid);await updateDoc(doc(db,"posts",id),{likes:l});};
-window.deletePost=async(id)=>{if(confirm("Delete?"))await deleteDoc(doc(db,"posts",id));};
-window.followUser=async(targetUid)=>{if(!me)return alert("Login to follow");if(targetUid===me.uid)return;let following=[...(myProfile.following||[])];if(following.includes(targetUid))following=following.filter(x=>x!==targetUid);else following.push(targetUid);await updateDoc(doc(db,"users",me.uid),{following});myProfile.following=following;renderPosts();};
-window.sharePost=async(text)=>{const url=location.href;const shareText=text.slice(0,100)+" - via MoodSpace Africa "+url;if(navigator.share){try{await navigator.share({title:"MoodSpace Africa",text:shareText,url});return;}catch(e){}}await navigator.clipboard.writeText(shareText);alert("Link copied! Share on WhatsApp");};
-window.addComment=async(postId)=>{if(!me)return alert("Login to comment");const inp=document.getElementById('c-'+postId);if(!inp.value.trim())return;await addDoc(collection(db,"posts",postId,"comments"),{text:inp.value,authorName:myProfile.name||me.email,uid:me.uid,createdAt:serverTimestamp()});inp.value="";};
-window.toggleComments=(id)=>{document.getElementById('comments-'+id).classList.toggle('hidden');};
-window.toggleForm=(id)=>{document.getElementById('form-'+id).classList.toggle('hidden');};
-window.toggleResponses=(id)=>{document.getElementById('resp-'+id).classList.toggle('hidden');};
-window.submitForm=async(postId,qs)=>{if(!me)return alert("Login to fill form");let answers={};let ok=true;qs.forEach((q,i)=>{let v=document.getElementById('f-'+postId+'-'+i).value.trim();if(!v)ok=false;answers[q]=v;});if(!ok)return alert("Please answer all questions");await addDoc(collection(db,"posts",postId,"responses"),{answers,authorName:myProfile.name||me.email,uid:me.uid,createdAt:serverTimestamp()});alert("Form submitted! Creator will see it.");document.getElementById('form-'+postId).classList.add('hidden');};
-function videoHTML(url){if(!url)return"";if(url.includes("youtube.com/watch")||url.includes("youtu.be/")){let vid=url.includes("v=")?url.split("v=")[1].split("&")[0]:url.split("/").pop().split("?")[0];return <div class="video-wrap"><iframe src="https://www.youtube.com/embed/${vid}" allowfullscreen></iframe></div>;}if(url.includes("tiktok.com")){return <div class="video-wrap" style="padding:12px;background:#111"><a href="${url}" target="_blank" style="color:#ff5a8a;font-weight:800">▶ Watch TikTok Video - Click Here</a><br><small>${url}</small></div>;}return <div class="video-wrap"><video src="${url}" controls></video></div>;}
-function loadProfileForm(){document.getElementById('editName').value=myProfile.name||"";document.getElementById('editPhoto').value=myProfile.photo||"";document.getElementById('editBio').value=myProfile.bio||"";document.getElementById('editType').value=myProfile.type||"User";document.getElementById('editLocation').value=myProfile.location||"";}
-function renderPosts(){const box=document.getElementById('posts');box.innerHTML="";let list=allPosts;if(filter==='Following')list=list.filter(p=>(myProfile.following||[]).includes(p.uid));else if(filter!=='all')list=list.filter(p=>p.category===filter);if(!list.length)box.innerHTML="<div class='card'><small>No posts yet. Be first to post an Announcement or Promo!</small></div>";list.forEach(p=>{const isMine=me&&p.uid===me.uid;let badges="";if(p.authorType==='Creator')badges+='<span class="badge b-creator">Creator ✓</span>';if(p.authorType==='Business')badges+='<span class="badge b-business">Business ✓</span>';if(p.category==='Announcement')badges+='<span class="badge b-announce">📢 Announcement</span>';if(p.category==='Promo')badges+='<span class="badge b-promo">📣 Promo</span>';if(p.category==='Event')badges+='<span class="badge b-event">🎉 Event</span>';let followBtn="";if(me&&!isMine){let isF=(myProfile.following||[]).includes(p.uid);followBtn=`<button class="btn-pink btn-sm" style="background:${isF?'#333':'#ff5a8a'}" onclick="followUser('${p.uid}')">${isF?'Following ✓':'Follow +'}</button>`;}let comments=(commentsCache[p.id]||[]).map(c=>`<div class="comment"><b>${c.authorName}</b>: ${c.text}</div>`).join('');let formHTML="";if(p.formQuestions?.length){let inputs=p.formQuestions.map((q,i)=>`<label><small>${q}</small></label><input id="f-${p.id}-${i}" placeholder="Answer: ${q}">`).join('');formHTML=`<button class="btn-green btn-sm" onclick="toggleForm('${p.id}')">📋 Fill Form (${p.formQuestions.length} questions)</button><div id="form-${p.id}" class="form-box hidden"><b>📋 Fill This Form</b><p><small>Creator: ${p.authorName} will see your answers</small></p>${inputs}<button class="btn-pink" style="width:100%;margin-top:8px" onclick="submitForm('${p.id}',${JSON.stringify(p.formQuestions).replace(/"/g,'&quot;')})">Submit Form →</button></div>`;}
-let respHTML="";if(isMine && p.formQuestions?.length){let resps=(responsesCache[p.id]||[]).map(r=>`<div class="response"><b>${r.authorName}</b><br>${Object.entries(r.answers||{}).map(([k,v])=>`<div><small>${k}</small><br>${v}</div>`).join('')}</div>`).join('');respHTML=`<button class="btn-ghost btn-sm" onclick="toggleResponses('${p.id}')">👀 View Responses (${(responsesCache[p.id]||[]).length})</button><div id="resp-${p.id}" class="hidden">${resps||"<small>No responses yet</small>"}</div>`;}
-box.innerHTML+=`<div class="card"><div style="display:flex;gap:10px;align-items:center;justify-content:space-between"><div style="display:flex;gap:10px;align-items:center"><div class="avatar">${p.authorPhoto?`<img src="${p.authorPhoto}">`:"😊"}</div><div><b>${p.authorName}</b>${badges}<br><small>${p.category} • ${p.createdAt?.toDate?.().toLocaleString()||"Just now"}</small></div></div>${followBtn}</div><p style="margin-top:10px;white-space:pre-wrap">${p.text||""}</p>${p.image?`<img class="post-img" src="${p.image}">`:""}${videoHTML(p.video||"")}<div class="actions"><button class="btn-ghost btn-sm" onclick="likePost('${p.id}',${JSON.stringify(p.likes||[])})">${p.likes?.includes(me?.uid)?"❤️":"🤍"} ${p.likes?.length||0}</button><button class="btn-ghost btn-sm" onclick="toggleComments('${p.id}')">💬 ${(commentsCache[p.id]||[]).length} Comments</button><button class="btn-ghost btn-sm" onclick="sharePost(\`${(p.text||"").replace(/`/g,"")}\`)">🔗 Share</button>${formHTML} ${respHTML} ${isMine?`<button class="btn-ghost btn-sm" onclick="deletePost('${p.id}')">Delete</button>`:""}</div><div id="comments-${p.id}" class="hidden"><div>${comments}</div><div style="display:flex;gap:8px;margin-top:8px"><input id="c-${p.id}" placeholder="Write a comment..."><button class="btn-pink btn-sm" onclick="addComment('${p.id}')">Send</button></div></div></div>`;});}
-onAuthStateChanged(auth,async(u)=>{me=u;if(!u){document.getElementById('page-auth').classList.remove('hidden');document.getElementById('page-feed').classList.add('hidden');document.getElementById('logoutBtn').classList.add('hidden');return;}document.getElementById('page-auth').classList.add('hidden');document.getElementById('page-feed').classList.remove('hidden');document.getElementById('logoutBtn').classList.remove('hidden');const snap=await getDoc(doc(db,"users",u.uid));if(snap.exists())myProfile=snap.data();else{myProfile={name:u.email.split('@')[0],email:u.email,type:"User",bio:"",photo:"",following:[]};await setDoc(doc(db,"users",u.uid),myProfile,{merge:true});}document.getElementById('myName').innerText="Hi, "+(myProfile.name||"");document.getElementById('profileName').innerText=myProfile.name||"";document.getElementById('profileEmail').innerText=u.email;document.getElementById('profileBioText').innerText=(myProfile.bio||"")+" • "+(myProfile.location||"");document.getElementById('profileAvatar').innerHTML=myProfile.photo?`<img src="${myProfile.photo}">`:"😊";document.getElementById('composerAvatar').innerHTML=myProfile.photo?`<img src="${myProfile.photo}">`:"😊";document.getElementById('followCount').innerText="Following: "+(myProfile.following?.length||0);let pb="";if(myProfile.type==='Creator')pb+='<span class="badge b-creator">Creator ✓</span>';if(myProfile.type==='Business')pb+='<span class="badge b-business">Business ✓</span>';document.getElementById('profileBadges').innerHTML=pb;});
-const q=query(collection(db,"posts"),orderBy("createdAt","desc"));onSnapshot(q,(s)=>{allPosts=s.docs.map(d=>({id:d.id,...d.data()}));allPosts.forEach(p=>{onSnapshot(collection(db,"posts",p.id,"comments"),(cs)=>{commentsCache[p.id]=cs.docs.map(d=>d.data());renderPosts();});onSnapshot(collection(db,"posts",p.id,"responses"),(rs)=>{responsesCache[p.id]=rs.docs.map(d=>d.data());renderPosts();});});renderPosts();});
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc, setDoc, serverTimestamp, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ===== PASTE YOUR FIREBASE CONFIG HERE =====
+const firebaseConfig = {
+  apiKey: "PASTE_YOUR_API_KEY",
+  authDomain: "PASTE_YOUR_PROJECT.firebaseapp.com",
+  projectId: "PASTE_YOUR_PROJECT_ID",
+  storageBucket: "PASTE_YOUR_PROJECT.appspot.com",
+  messagingSenderId: "PASTE_YOUR_SENDER_ID",
+  appId: "PASTE_YOUR_APP_ID"
+};
+// =============================================
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let currentUserData = null;
+let allPosts = [];
+let currentFilter = "All";
+
+const $ = (id) => document.getElementById(id);
+
+window.setFilter = (f, el) => {
+  currentFilter = f;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  if(el) el.classList.add("active");
+  renderFeed();
+};
+
+window.signup = async () => {
+  const name = $("authName").value.trim();
+  const email = $("authEmail").value.trim();
+  const pass = $("authPass").value;
+  if(!name) return $("authMsg").textContent = "Please enter your Name for Create Account";
+  if(!email || !pass) return $("authMsg").textContent = "Enter email + password";
+  $("authMsg").textContent = "Creating account...";
+  try{
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await updateProfile(cred.user, { displayName: name });
+    await setDoc(doc(db,"users",cred.user.uid), { name, email, createdAt: serverTimestamp() });
+    $("authMsg").textContent = "";
+  }catch(e){ $("authMsg").textContent = e.message; }
+};
+
+window.login = async () => {
+  const email = $("authEmail").value.trim();
+  const pass = $("authPass").value;
+  if(!email || !pass) return $("authMsg").textContent = "Enter email + password";
+  $("authMsg").textContent = "Logging in...";
+  try{
+    await signInWithEmailAndPassword(auth, email, pass);
+    $("authMsg").textContent = "";
+  }catch(e){ $("authMsg").textContent = e.message; }
+};
+
+window.resetPass = async () => {
+  const email = $("authEmail").value.trim();
+  if(!email) return alert("Type your email first");
+  try{ await sendPasswordResetEmail(auth, email); alert("Password reset email sent to " + email); }
+  catch(e){ alert(e.message); }
+};
+
+window.logout = async () => { await signOut(auth); };
+
+window.createPost = async () => {
+  if(!currentUser) return alert("Login first");
+  const title = $("postTitle").value.trim();
+  const text = $("postText").value.trim();
+  const type = $("postType").value;
+  const image = $("postImage").value.trim();
+  if(!title || !text) return $("postMsg").textContent = "Add Title + Details";
+  let form = null;
+  if($("useForm").checked){
+    form = { title: $("formTitle").value.trim()  "Fill this form", q1: $("formQ1").value.trim()  "Your Name", q2: $("formQ2").value.trim()  "Phone", q3: $("formQ3").value.trim()  "" };
+  }
+  $("postMsg").textContent = "Posting...";
+  try{
+    await addDoc(collection(db,"posts"), { title, text, type, image, form, authorName: currentUserData?.name  currentUser.displayName  "User", authorId: currentUser.uid, likes: [], createdAt: serverTimestamp() });
+    $("postTitle").value=""; $("postText").value=""; $("postImage").value=""; $("useForm").checked=false; $("formBuilder").classList.add("hidden");
+    $("postMsg").textContent = "Posted!";setTimeout(()=>$("postMsg").textContent="",2000);
+  }catch(e){ $("postMsg").textContent = e.message; }
+};
+
+window.likePost = async (id, likes) => {
+  if(!currentUser) return alert("Login to like");
+  const has = (likes||[]).includes(currentUser.uid);
+  const ref = doc(db,"posts",id);
+  if(has) await updateDoc(ref,{ likes: (likes||[]).filter(u=>u!==currentUser.uid) });
+  else await updateDoc(ref,{ likes: arrayUnion(currentUser.uid) });
+};
+
+window.submitForm = async (postId, formTitle) => {
+  const a1 = prompt(formTitle + " - Q1:");
+  if(a1===null) return;
+  const a2 = prompt("Q2:");
+  const a3 = prompt("Q3 (optional):");
+  try{
+    await addDoc(collection(db,"formResponses"), { postId, name: a1, answer2: a2||"", answer3: a3||"", userId: currentUser?.uid||"guest", createdAt: serverTimestamp() });
+    alert("Form submitted! Thank you.");
+  }catch(e){ alert(e.message); }
+};
+
+function escapeHtml(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function renderFeed(){
+  const feed = $("feed");
+  const list = allPosts.filter(p=> currentFilter==="All" || p.type===currentFilter);
+  if(list.length===0){ feed.innerHTML = "<div class='card' style='text-align:center'>No posts yet in this category. Be the first to post!</div>"; return; }
+  feed.innerHTML = list.map(p=>{
+    const isImg = p.image && (p.image.includes(".jpg")||p.image.includes(".png")||p.image.includes(".jpeg")||p.image.includes("images")||p.image.includes("i.imgur")||p.image.includes("unsplash"));
+    const media = !p.image ? "" : isImg ? <img class="post-img" src="${escapeHtml(p.image)}"> : <p><a href="${escapeHtml(p.image)}" target="_blank">🔗 Open Link / Video</a></p>;
+    const formHtml = p.form ? <div class="form-box"><b>📋 ${escapeHtml(p.form.title)}</b><p class="small">1. ${escapeHtml(p.form.q1)}<br>2. ${escapeHtml(p.form.q2)}${p.form.q3?`<br>3. ${escapeHtml(p.form.q3)}:""}</p><button class="btn-small" onclick="submitForm('${p.id}','${escapeHtml(p.form.title)}')">Fill Form</button></div>` : "";
+    return <div class="card"><span class="badge">${escapeHtml(p.type)}</span><h3 style="margin:8px 0 4px">${escapeHtml(p.title)}</h3><p style="white-space:pre-wrap;margin:6px 0">${escapeHtml(p.text)}</p><p class="small">By ${escapeHtml(p.authorName)} • ${(p.likes||[]).length} likes</p>${media}${formHtml}<button class="btn-small" style="margin-top:10px" onclick="likePost('${p.id}', ${JSON.stringify(p.likes||[])})">❤️ Like (${(p.likes||[]).length})</button></div>;
+  }).join("");
+}
+
+onAuthStateChanged(auth, async (user)=>{
+  if(user){
+    currentUser = user;
+    try{
+      const snap = await getDoc(doc(db,"users",user.uid));
+      if(snap.exists()) currentUserData = snap.data();
+      else { currentUserData = { name: user.displayName||"User", email: user.email }; await setDoc(doc(db,"users",user.uid), currentUserData); }
+    }catch(e){ currentUserData = { name: user.displayName||"User", email: user.email }; }
+    $("authScreen").classList.add("hidden");
+    $("mainScreen").classList.remove("hidden");
+    $("headerUser").innerHTML = <span class="small">Hi, ${escapeHtml(currentUserData.name)}</span> <button onclick="logout()">Logout</button>;
+  } else {
+    currentUser = null;
+    $("authScreen").classList.remove("hidden");
+    $("mainScreen").classList.add("hidden");
+    $("headerUser").innerHTML = "";
+  }
+});
+
+const q = query(collection(db,"posts"), orderBy("createdAt","desc"));
+onSnapshot(q, (snap)=>{
+  allPosts = snap.docs.map(d=>({ id: d.id, ...d.data() }));
+  if(currentUser) renderFeed();
+});
 </script>
-</body></html>
+</body>
+</html>
