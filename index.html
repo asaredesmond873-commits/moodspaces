@@ -1,234 +1,566 @@
-'use client';
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoodSpace Africa</title>
+<style>
+body{margin:0;font-family:Arial;color:#fff;background:linear-gradient(135deg,#052e1b,#0a5c36,#16a34a,#052e1b);min-height:100vh}
+header{background:rgba(255,255,255,0.12);backdrop-filter:blur(16px);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;border-bottom:1px solid rgba(255,255,255,0.2)}
+header b{font-size:21px;letter-spacing:1px}
+header b span{color:#a7f3d0}
+.wrap{max-width:620px;margin:0 auto;padding:14px}
+.card{background:rgba(255,255,255,0.15);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+input,select,textarea{width:100%;padding:12px;border:1px solid rgba(255,255,255,0.4);border-radius:12px;margin:7px 0;font-size:15px;box-sizing:border-box;background:rgba(255,255,255,0.9);color:#111}
+.btn{background:#16a34a;color:#fff;border:0;border-radius:12px;padding:13px;width:100%;font-weight:bold;font-size:16px;cursor:pointer}
+.btn2{background:rgba(255,255,255,0.9);color:#052e1b;border:0;border-radius:12px;padding:13px;width:100%;font-weight:bold;margin-top:8px;cursor:pointer}
+.btns{background:rgba(255,255,255,0.9);color:#052e1b;border:0;border-radius:999px;padding:8px 14px;font-weight:bold;cursor:pointer;margin-right:6px}
+.btns.on{background:#052e1b;color:#fff}
+.tab{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:bold;color:#fff}
+.tab.on{background:#fff;color:#052e1b}
+.tabs{display:flex;gap:8px;margin:8px 0 12px;flex-wrap:wrap}
+.badge{background:#dcfce7;color:#052e1b;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:bold}
+.vbadge{background:gold;color:#052e1b;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:13px}
+.small{font-size:13px;color:#e5e7eb}
+.hidden{display:none}
+.postimg{width:100%;border-radius:14px;margin-top:10px}
+.postvid{width:100%;border-radius:14px;margin-top:10px;background:#000;max-height:480px}
+.formbox{background:rgba(255,255,255,0.9);color:#111;border-radius:12px;padding:12px;margin-top:12px}
+.cbox{background:rgba(255,255,255,0.9);color:#111;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:14px}
+.av{width:42px;height:42px;border-radius:50%;background:#fff;color:#052e1b;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.topbar{display:flex;gap:10px;overflow-x:auto;padding:8px 0}
+.topitem{min-width:70px;text-align:center;font-size:12px;font-weight:bold;color:#fff;cursor:pointer}
+.topcircle{width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto;border:2px solid #fff;overflow:hidden}
+.topcircle img{width:100%;height:100%;object-fit:cover}
+.topcircle video{width:100%;height:100%;object-fit:cover}
+.filelabel{background:rgba(255,255,255,0.9);color:#052e1b;border-radius:12px;padding:14px;text-align:center;display:block;cursor:pointer;font-weight:bold;margin:7px 0}
+.navbtn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:bold}
+</style>
+</head>
+<body>
+<header><b>MOODSPACE <span>AFRICA</span></b><span id="headerUser"></span></header>
 
-import { FormEvent, useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+<div class="wrap" id="authScreen">
+<div class="card" style="text-align:center">
+<h2>MoodSpace Africa</h2>
+<p class="small">Announcements, Events, Promo - Africa</p>
+<input id="authName" placeholder="Full Name">
+<input id="authEmail" placeholder="Email">
+<input id="authPass" placeholder="Password" type="password">
+<p id="authMsg" style="color:#fde68a"></p>
+<button class="btn" onclick="doLogin()">Login</button><button class="btn2" onclick="doSignup()">Create Account</button>
+<p><a href="#" onclick="doReset();return false;" style="color:#fff">Forgot Password?</a></p>
+</div>
+</div>
 
-type Post = {
-  id: string;
-  owner_id: string;
-  type: 'announcement' | 'promotion' | 'event';
-  title: string;
-  body: string | null;
-  media_url: string | null;
-  created_at: string;
-  profiles?: { username: string; display_name: string; avatar_url: string | null; verification_status: string };
+<div class="wrap hidden" id="mainScreen">
+<div style="display:flex;gap:8px;margin-bottom:10px">
+<button class="navbtn" onclick="showPage('feedPage')">Feed</button>
+<button class="navbtn" onclick="showPage('dashPage')">My Dashboard</button>
+<button class="navbtn" onclick="doLogout()">Logout</button>
+</div>
+
+<div id="dashPage">
+<div class="card" style="text-align:center">
+<div class="av" id="dashAv" style="width:90px;height:90px;font-size:32px;margin:0 auto">M</div>
+<h2 id="dashName">User</h2>
+<p id="dashBio" class="small">No bio yet</p>
+<p id="dashVerified"></p>
+<input id="editName" placeholder="Name">
+<input id="editBio" placeholder="Bio">
+<label class="filelabel">Change Profile Picture<input type="file" id="profileFile" accept="image/*" style="display:none" onchange="previewProfile()"></label>
+<div id="profilePreview"></div>
+<button class="btn" onclick="saveProfile()">Save Profile</button>
+<p id="profileMsg" class="small"></p>
+</div>
+<div class="card">
+<h3>Verification for Creators / Business</h3>
+<p class="small">Submit proof photo or video</p>
+<label class="filelabel">Pick Proof Photo or Video<input type="file" id="verifyFile" accept="image/*,video/*" style="display:none"></label>
+<button class="btn" onclick="submitVerification()">Submit Verification</button>
+<p id="verifyMsg" class="small"></p>
+</div>
+<div class="card" id="adminBox" style="display:none">
+<h3>Verification Requests</h3>
+<div id="verifyList"></div>
+</div>
+<div class="card">
+<h3>My Form Responses</h3>
+<p class="small">Responses to forms on your posts</p>
+<div id="myResponses"></div>
+</div>
+</div>
+
+<div id="feedPage">
+<div class="topbar" id="storyBar"></div>
+<div class="tabs">
+<div class="tab on" onclick="setFilter('All',this)">All</div>
+<div class="tab" onclick="setFilter('Announcement',this)">Announcements</div>
+<div class="tab" onclick="setFilter('Promo',this)">Promo</div>
+<div class="tab" onclick="setFilter('Event',this)">Events</div>
+</div>
+<div class="card">
+<div style="display:flex;gap:10px;align-items:center"><div class="av" id="myAvatar">M</div><b id="myNameLabel">Share something</b></div>
+<select id="postType"><option>Announcement</option><option>Promo</option><option>Event</option></select>
+<input id="postTitle" placeholder="Title">
+<textarea id="postText" rows="3" placeholder="Write details"></textarea>
+<label class="filelabel">Pick Photo or Video from Gallery<input type="file" id="postFile" accept="image/*,video/*" style="display:none" onchange="previewFile()"></label>
+<div id="previewBox"></div>
+<label style="font-size:14px"><input type="checkbox" id="useForm" style="width:auto" onchange="showFormBox()"> Add Form to this post</label>
+<div id="formBuilder" class="formbox hidden">
+<b>Form - You choose questions</b>
+<input id="formTitle" placeholder="Form Title">
+<div id="formQs"><input class="fq" placeholder="Question 1"><input class="fq" placeholder="Question 2"></div>
+<button type="button" class="btns" onclick="addQuestion()">+ Add Question</button>
+</div>
+<button class="btn" style="margin-top:8px" onclick="doPost()">Post</button>
+<p id="postMsg" class="small"></p>
+</div>
+<div id="feed"></div>
+</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc, setDoc, serverTimestamp, updateDoc, arrayUnion, deleteDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+var CLOUD = "demo";
+var PRESET = "docs_upload_example_us_preset";
+var firebaseConfig = {
+apiKey: "AIzaSyBHp8ica_4LhPVYYyxhQz70x7ad2x-cOJM",
+authDomain: "moodspaceafrica.firebaseapp.com",projectId: "moodspaceafrica",
+storageBucket: "moodspaceafrica.firebasestorage.app",
+messagingSenderId: "449390027692",
+appId: "1:449390027692:web:8651532b91c5ea3e82d009"
 };
-
-type Comment = { id: string; body: string; created_at: string; profiles?: { username: string; display_name: string } };
-
-export default function GatherPulse() {
-  const supabase = createClient();
-  const [user, setUser] = useState<any>(null);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [comments, setComments] = useState<Record<string, Comment[]>>({});
-  const [liked, setLiked] = useState<Record<string, boolean>>({});
-  const [storyText, setStoryText] = useState('');
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const [type, setType] = useState<'announcement' | 'promotion' | 'event'>('announcement');
-  const [commentText, setCommentText] = useState<Record<string, string>>({});
-  const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null));
-    loadPosts();
-    return () => listener.subscription.unsubscribe();
-  }, []);
-
-  async function loadPosts() {
-    const { data } = await supabase
-      .from('posts')
-      .select('*, profiles(username, display_name, avatar_url, verification_status)')
-      .eq('published', true)
-      .order('created_at', { ascending: false });
-    setPosts((data ?? []) as Post[]);
-  }
-
-  async function signup(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const email = String(form.get('email'));
-    const password = String(form.get('password'));
-    const username = String(form.get('username'));
-    const displayName = String(form.get('displayName'));
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { username, display_name: displayName } }
-    });
-    setMessage(error?.message ?? 'Check your email to confirm your account.');
-  }
-
-  async function login(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: String(form.get('email')),
-      password: String(form.get('password'))
-    });
-    setMessage(error?.message ?? 'Logged in.');
-  }
-
-  async function logout() {
-    await supabase.auth.signOut();
-    setUser(null);
-  }
-
-  async function createPost(e: FormEvent) {
-    e.preventDefault();
-    if (!user) return setMessage('Log in first.');
-    const { error } = await supabase.from('posts').insert({
-      owner_id: user.id,
-      type,
-      media_type: 'text',
-      title: title.trim(),
-      body: body.trim()
-    });
-    setMessage(error?.message ?? 'Posted.');
-    if (!error) {
-      setTitle('');
-      setBody('');
-      loadPosts();
-    }
-  }
-
-  async function toggleLike(postId: string) {
-    if (!user) return setMessage('Log in first.');
-    const current = liked[postId];
-    if (current) {
-      await supabase.from('post_likes').delete().eq('post_id', postId).eq('user_id', user.id);
-    } else {
-      await supabase.from('post_likes').insert({ post_id: postId, user_id: user.id });
-    }
-    setLiked({ ...liked, [postId]: !current });
-  }
-
-  async function loadComments(postId: string) {
-    const { data } = await supabase
-      .from('comments')
-      .select('*, profiles(username, display_name)')
-      .eq('post_id', postId)
-      .order('created_at', { ascending: true });
-    setComments({ ...comments, [postId]: (data ?? []) as Comment[] });
-  }
-
-  async function addComment(postId: string) {
-    if (!user) return setMessage('Log in first.');
-    const body = (commentText[postId] ?? '').trim();
-    if (!body) return;
-    const { error } = await supabase.from('comments').insert({ post_id: postId, user_id: user.id, body });
-    if (error) return setMessage(error.message);
-    setCommentText({ ...commentText, [postId]: '' });
-    loadComments(postId);
-  }
-
-  async function createStory(e: FormEvent) {
-    e.preventDefault();
-    if (!user) return setMessage('Log in first.');
-    const { error } = await supabase.from('stories').insert({
-      owner_id: user.id,
-      media_type: 'text',
-      text_content: storyText.trim()
-    });
-    setMessage(error?.message ?? 'Story posted for 24 hours.');
-    setStoryText('');
-  }
-
-  async function requestVerification() {
-    if (!user) return setMessage('Log in first.');
-    const { data: profile } = await supabase.from('profiles').select('follower_count').eq('id', user.id).single();
-    if (!profile || profile.follower_count < 1000) return setMessage('You need 1,000 followers to apply.');
-    const { error } = await supabase.from('verification_requests').insert({ user_id: user.id, provider: 'identity_provider' });
-    setMessage(error?.message ?? 'Verification request submitted.');
-  }
-
-  if (!user) return (
-    <main className="mx-auto grid max-w-5xl gap-8 p-6 md:grid-cols-2">
-      <section>
-        <h1 className="text-4xl font-black">GatherPulse</h1>
-        <p className="mt-3 text-lg">Announcements, promotions and events from your community.</p>
-      </section>
-      <section className="space-y-6">
-        <form onSubmit={login} className="space-y-3 rounded-xl border p-5">
-          <h2 className="text-xl font-bold">Log in</h2>
-          <input name="email" type="email" required placeholder="Email" className="w-full rounded border p-3" />
-          <input name="password" type="password" required minLength={8} placeholder="Password" className="w-full rounded border p-3" />
-          <button className="w-full rounded bg-black p-3 text-white">Log in</button>
-        </form>
-        <form onSubmit={signup} className="space-y-3 rounded-xl border p-5">
-          <h2 className="text-xl font-bold">Create account</h2>
-          <input name="displayName" required placeholder="Display name" className="w-full rounded border p-3" />
-          <input name="username" required pattern="[A-Za-z0-9_]{3,30}" placeholder="Username" className="w-full rounded border p-3" />
-          <input name="email" type="email" required placeholder="Email" className="w-full rounded border p-3" />
-          <input name="password" type="password" required minLength={8} placeholder="Password" className="w-full rounded border p-3" />
-          <button className="w-full rounded bg-blue-600 p-3 text-white">Sign up</button>
-        </form>
-        {message && <p className="text-red-600">{message}</p>}
-      </section>
-    </main>
-  );
-
-  return (
-    <main className="mx-auto max-w-3xl space-y-6 p-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-3xl font-black">GatherPulse</h1>
-        <button onClick={logout} className="rounded border px-3 py-2">Log out</button>
-      </header>
-
-      <section className="grid gap-4 md:grid-cols-2">
-        <form onSubmit={createPost} className="space-y-3 rounded-xl border p-5">
-          <h2 className="text-xl font-bold">Create a post</h2>
-          <select value={type} onChange={e => setType(e.target.value as any)} className="w-full rounded border p-3">
-            <option value="announcement">Announcement</option>
-            <option value="promotion">Promotion</option>
-            <option value="event">Event</option>
-          </select>
-          <input value={title} onChange={e => setTitle(e.target.value)} required maxLength={180} placeholder="Title" className="w-full rounded border p-3" />
-          <textarea value={body} onChange={e => setBody(e.target.value)} maxLength={10000} placeholder="Write something..." className="min-h-28 w-full rounded border p-3" />
-          <button className="rounded bg-blue-600 px-4 py-2 text-white">Publish</button>
-        </form>
-
-        <form onSubmit={createStory} className="space-y-3 rounded-xl border p-5">
-          <h2 className="text-xl font-bold">Post a story</h2>
-          <textarea value={storyText} onChange={e => setStoryText(e.target.value)} required maxLength={2000} placeholder="Story disappears after 24 hours" className="min-h-28 w-full rounded border p-3" />
-          <button className="rounded bg-purple-600 px-4 py-2 text-white">Post story</button>
-          <button type="button" onClick={requestVerification} className="block rounded border px-4 py-2">Apply for verification</button>
-        </form>
-      </section>
-
-      {message && <p className="rounded bg-gray-100 p-3">{message}</p>}
-
-      <section className="space-y-4">
-        {posts.map(post => (
-          <article key={post.id} className="rounded-xl border p-5 shadow-sm">
-            <div className="mb-3 flex items-center justify-between">
-              <div>
-                <strong>{post.profiles?.display_name ?? 'User'}</strong>
-                {post.profiles?.verification_status === 'verified' && <span className="ml-2 text-blue-600">вњ“</span>}
-                <p className="text-sm text-gray-500">@{post.profiles?.username} В· {post.type}</p>
-              </div>
-              <time className="text-xs text-gray-500">{new Date(post.created_at).toLocaleDateString()}</time>
-            </div>
-            <h2 className="text-xl font-bold">{post.title}</h2>
-            <p className="mt-2 whitespace-pre-wrap">{post.body}</p>
-            <div className="mt-4 flex gap-2">
-              <button onClick={() => toggleLike(post.id)} className="rounded border px-3 py-2">{liked[post.id] ? 'в™Ґ Liked' : 'в™Ў Like'}</button>
-              <button onClick={() => loadComments(post.id)} className="rounded border px-3 py-2">Comments</button>
-              <button onClick={() => navigator.share?.({ title: post.title, url: location.href })} className="rounded border px-3 py-2">Share</button>
-            </div>
-            {comments[post.id] && (
-              <div className="mt-4 space-y-2 border-t pt-3">
-                {comments[post.id].map(comment => <p key={comment.id}><b>{comment.profiles?.display_name}:</b> {comment.body}</p>)}
-                <div className="flex gap-2">
-                  <input value={commentText[post.id] ?? ''} onChange={e => setCommentText({ ...commentText, [post.id]: e.target.value })} maxLength={2000} placeholder="Write a comment" className="flex-1 rounded border p-2" />
-                  <button onClick={() => addComment(post.id)} className="rounded bg-black px-3 text-white">Send</button>
-                </div>
-              </div>
-            )}
-          </article>
-        ))}
-      </section>
-    </main>
-  );
+var app = initializeApp(firebaseConfig);
+var auth = getAuth(app);
+var db = getFirestore(app);
+var currentUser = null;
+var currentName = "User";
+var currentBio = "";
+var currentPic = "";
+var currentVerified = false;
+var allPosts = [];
+var allStories = [];
+var allResponses = [];
+var currentFilter = "All";
+var selectedFile = null;
+var selectedProfileFile = null;
+function getEl(id){ return document.getElementById(id); }
+function esc(s){
+if(s === null || s === undefined){ return ""; }
+return String(s).replace(/&/g, "and").replace(/</g, "").replace(/>/g, "");
 }
+function isVid(u){
+if(!u){ return false; }
+var x = u.toLowerCase();
+if(x.indexOf(".mp4") > -1){ return true; }
+if(x.indexOf("/video/") > -1){ return true; }
+return false;
+}
+function vbadge(){
+return "<span class='vbadge'>&#10003;</span>";
+}
+async function uploadFree(file){
+var fd = new FormData();
+fd.append("file", file);
+fd.append("upload_preset", PRESET);
+var base = "https://api.cloudinary.com";
+var mid = "/v1_1/";
+var end = "/auto/upload";
+var full = base + mid + CLOUD + end;
+var res = await fetch(full, {method: "POST", body: fd});
+var data = await res.json();
+if(data.secure_url){ return data.secure_url; }
+throw new Error("Upload failed. Try smaller file.");
+}
+window.showPage = function(page){
+if(page === "dashPage"){
+getEl("dashPage").classList.remove("hidden");
+getEl("feedPage").classList.add("hidden");
+} else {
+getEl("dashPage").classList.add("hidden");
+getEl("feedPage").classList.remove("hidden");
+}
+};
+window.showFormBox = function(){
+if(getEl("useForm").checked){ getEl("formBuilder").classList.remove("hidden"); }
+else { getEl("formBuilder").classList.add("hidden"); }
+};
+window.addQuestion = function(){
+var d = document.createElement("input");
+d.className = "fq";
+d.placeholder = "New Question";
+getEl("formQs").appendChild(d);
+};
+window.setFilter = function(f, el){
+currentFilter = f;
+var tabs = document.querySelectorAll(".tab");
+for(var i=0;i<tabs.length;i++){ tabs[i].classList.remove("on"); }
+if(el){ el.classList.add("on"); }
+showFeed();
+};
+window.previewFile = function(){
+var inp = getEl("postFile");
+if(inp.files.length === 0){ return; }
+selectedFile = inp.files[0];
+var url = URL.createObjectURL(selectedFile);
+if(selectedFile.type.indexOf("video") > -1){
+getEl("previewBox").innerHTML = "<video src='" + url + "' controls style='width:100%;border-radius:12px'></video>";
+} else {
+getEl("previewBox").innerHTML = "<img src='" + url + "' style='width:100%;border-radius:12px'>";
+}
+};
+window.previewProfile = function(){
+var inp = getEl("profileFile");
+if(inp.files.length === 0){ return; }
+selectedProfileFile = inp.files[0];
+var url = URL.createObjectURL(selectedProfileFile);
+getEl("profilePreview").innerHTML = "<img src='" + url + "' style='width:100%;border-radius:12px'>";
+};
+window.doSignup = async function(){
+var name = getEl("authName").value;
+var email = getEl("authEmail").value;
+var pass = getEl("authPass").value;
+if(name === ""){ getEl("authMsg").textContent = "Enter your Name"; return; }
+if(email === "" || pass === ""){ getEl("authMsg").textContent = "Enter email and password"; return; }
+getEl("authMsg").textContent = "Creating...";
+try{
+var cred = await createUserWithEmailAndPassword(auth, email, pass);
+await updateProfile(cred.user, {displayName: name});
+await setDoc(doc(db, "users", cred.user.uid), {name: name, email: email, bio: "", pic: "", verified: false, createdAt: serverTimestamp()});
+getEl("authMsg").textContent = "";
+}catch(e){ getEl("authMsg").textContent = e.message; }
+};
+window.doLogin = async function(){
+var email = getEl("authEmail").value;
+var pass = getEl("authPass").value;
+if(email === "" || pass === ""){ getEl("authMsg").textContent = "Enter email and password"; return; }
+getEl("authMsg").textContent = "Logging in...";
+try{ await signInWithEmailAndPassword(auth, email, pass); getEl("authMsg").textContent = ""; }
+catch(e){ getEl("authMsg").textContent = e.message; }
+};window.doReset = async function(){
+var email = getEl("authEmail").value;
+if(email === ""){ alert("Type your email first"); return; }
+try{ await sendPasswordResetEmail(auth, email); alert("Reset email sent"); }
+catch(e){ alert(e.message); }
+};
+window.doLogout = async function(){ await signOut(auth); };
+window.saveProfile = async function(){
+if(currentUser === null){ return; }
+var n = getEl("editName").value;
+var b = getEl("editBio").value;
+if(n === ""){ n = currentName; }
+getEl("profileMsg").textContent = "Saving...";
+try{
+var picUrl = currentPic;
+if(selectedProfileFile !== null){ picUrl = await uploadFree(selectedProfileFile); }
+await updateDoc(doc(db, "users", currentUser.uid), {name: n, bio: b, pic: picUrl});
+await updateProfile(currentUser, {displayName: n});
+currentName = n;
+currentBio = b;
+currentPic = picUrl;
+selectedProfileFile = null;
+getEl("profileMsg").textContent = "Saved";
+refreshDashboard();
+}catch(e){ getEl("profileMsg").textContent = e.message; }
+};
+window.submitVerification = async function(){
+if(currentUser === null){ return; }
+var f = getEl("verifyFile");
+if(f.files.length === 0){ getEl("verifyMsg").textContent = "Pick proof photo or video"; return; }
+getEl("verifyMsg").textContent = "Uploading proof...";
+try{
+var url = await uploadFree(f.files[0]);
+var mType = "image";
+if(f.files[0].type.indexOf("video") > -1){ mType = "video"; }
+await addDoc(collection(db, "verification"), {userId: currentUser.uid, name: currentName, media: url, mediaType: mType, status: "pending", createdAt: serverTimestamp()});
+getEl("verifyMsg").textContent = "Submitted. Wait for approval.";
+}catch(e){ getEl("verifyMsg").textContent = e.message; }
+};
+window.approveVerify = async function(reqId, userId){
+try{
+await updateDoc(doc(db, "users", userId), {verified: true});
+await updateDoc(doc(db, "verification", reqId), {status: "approved"});
+alert("Approved");
+}catch(e){ alert(e.message); }
+};
+window.doPost = async function(){
+if(currentUser === null){ alert("Login first"); return; }
+var title = getEl("postTitle").value;
+var text = getEl("postText").value;
+var type = getEl("postType").value;
+if(title === "" || text === ""){ getEl("postMsg").textContent = "Add Title and Details"; return; }
+getEl("postMsg").textContent = "Uploading. Please wait.";
+var mediaUrl = "";
+var mediaType = "none";
+try{
+if(selectedFile !== null){
+mediaUrl = await uploadFree(selectedFile);
+if(selectedFile.type.indexOf("video") > -1){ mediaType = "video"; }
+else { mediaType = "image"; }
+}
+var form = null;
+if(getEl("useForm").checked){
+var qs = [];
+var inputs = document.querySelectorAll(".fq");
+for(var i=0;i<inputs.length;i++){ if(inputs[i].value !== ""){ qs.push(inputs[i].value); } }
+if(qs.length === 0){ qs.push("Your Name"); qs.push("Phone"); }
+var ft = getEl("formTitle").value;
+if(ft === ""){ ft = "Fill this form"; }
+form = {title: ft, questions: qs};
+}
+await addDoc(collection(db, "posts"), {title: title, text: text, type: type, image: mediaUrl, mediaType: mediaType, form: form, authorName: currentName, authorId: currentUser.uid, authorPic: currentPic, verified: currentVerified, likes: [], comments: [], createdAt: serverTimestamp()});
+getEl("postTitle").value = "";
+getEl("postText").value = "";
+getEl("postFile").value = "";
+getEl("previewBox").innerHTML = "";
+selectedFile = null;
+getEl("useForm").checked = false;
+getEl("formBuilder").classList.add("hidden");
+getEl("postMsg").textContent = "Posted";
+}catch(e){ getEl("postMsg").textContent = e.message; }
+};
+window.doDelete = async function(id, authorId){
+if(currentUser === null){ return; }
+if(currentUser.uid !== authorId){ alert("Only owner can delete"); return; }
+var ok = confirm("Delete this post?");
+if(ok === false){ return; }
+try{ await deleteDoc(doc(db, "posts", id)); }catch(e){ alert(e.message); }
+};
+window.addStory = async function(){
+if(currentUser === null){ alert("Login first"); return; }
+var inp = document.createElement("input");
+inp.type = "file";
+inp.accept = "image/*,video/*";
+inp.onchange = async function(){
+var file = inp.files[0];
+if(!file){ return; }var txt = prompt("Add text to story optional:");
+if(txt === null){ txt = ""; }
+try{
+var url = await uploadFree(file);
+var mType = "image";
+if(file.type.indexOf("video") > -1){ mType = "video"; }
+await addDoc(collection(db, "stories"), {media: url, mediaType: mType, text: txt, authorName: currentName, authorId: currentUser.uid, verified: currentVerified, createdAt: serverTimestamp()});
+alert("Story posted");
+}catch(e){ alert(e.message); }
+};
+inp.click();
+};
+window.viewStory = function(url, mType, txt){
+var w = window.open("", "_blank");
+var tag = "";
+if(mType === "video"){ tag = "<video src='" + url + "' controls autoplay style='width:100%'></video>"; }
+else { tag = "<img src='" + url + "' style='width:100%'>"; }
+w.document.write("<body style='background:#000;color:#fff;font-family:Arial;text-align:center'><h2>" + txt + "</h2>" + tag + "</body>");
+};
+window.doLike = async function(id){
+if(currentUser === null){ alert("Login to like"); return; }
+var post = null;
+for(var i=0;i<allPosts.length;i++){ if(allPosts[i].id === id){ post = allPosts[i]; } }
+if(post === null){ return; }
+var likes = post.likes;
+if(likes === undefined){ likes = []; }
+var hasLiked = false;
+for(var j=0;j<likes.length;j++){ if(likes[j] === currentUser.uid){ hasLiked = true; } }
+var refDoc = doc(db, "posts", id);
+if(hasLiked){
+var newLikes = [];
+for(var k=0;k<likes.length;k++){ if(likes[k] !== currentUser.uid){ newLikes.push(likes[k]); } }
+await updateDoc(refDoc, {likes: newLikes});
+} else {
+await updateDoc(refDoc, {likes: arrayUnion(currentUser.uid)});
+}
+};
+window.doComment = async function(id){
+if(currentUser === null){ alert("Login to comment"); return; }
+var txt = prompt("Write your comment:");
+if(txt === null || txt === ""){ return; }
+var refDoc = doc(db, "posts", id);
+await updateDoc(refDoc, {comments: arrayUnion({name: currentName, text: txt})});
+};
+window.doShare = async function(title, text){
+var link = window.location.href;
+var shareText = title + " - " + text + " - " + link;
+try{
+if(navigator.share){ await navigator.share({title: title, text: shareText, url: link}); }
+else { await navigator.clipboard.writeText(shareText); alert("Link copied"); }
+}catch(e){ await navigator.clipboard.writeText(shareText); alert("Link copied"); }
+};
+window.doForm = async function(postId){
+var post = null;
+for(var i=0;i<allPosts.length;i++){ if(allPosts[i].id === postId){ post = allPosts[i]; } }
+if(post === null || post.form === null){ return; }
+var qs = post.form.questions;
+var answers = [];
+for(var q=0;q<qs.length;q++){
+var a = prompt(qs[q]);
+if(a === null){ a = ""; }
+answers.push(a);
+}
+try{
+await addDoc(collection(db, "formResponses"), {postId: postId, postTitle: post.title, ownerId: post.authorId, name: currentName, answers: answers, questions: qs, userId: currentUser.uid, createdAt: serverTimestamp()});
+alert("Form submitted. Thank you.");
+}catch(e){ alert(e.message); }
+};
+function refreshDashboard(){
+getEl("dashName").textContent = currentName;
+getEl("dashBio").textContent = currentBio;
+if(currentBio === ""){ getEl("dashBio").textContent = "No bio yet"; }
+getEl("editName").value = currentName;
+getEl("editBio").value = currentBio;
+if(currentPic !== ""){
+getEl("dashAv").innerHTML = "<img src='" + esc(currentPic) + "'>";
+getEl("myAvatar").innerHTML = "<img src='" + esc(currentPic) + "'>";
+} else {
+getEl("dashAv").textContent = currentName.charAt(0);
+getEl("myAvatar").textContent = currentName.charAt(0);
+}
+if(currentVerified === true){ getEl("dashVerified").innerHTML = vbadge(); }
+else { getEl("dashVerified").innerHTML = ""; }
+getEl("myNameLabel").textContent = "Hi " + currentName;
+}
+function showStories(){
+var bar = getEl("storyBar");
+var html = "<div class='topitem' onclick=\"addStory()\"><div class='topcircle'>+</div>Add Story</div>";
+for(var i=0;i<allStories.length;i++){
+var s = allStories[i];
+var inner = "";
+if(s.mediaType === "video"){ inner = "<video src='" + esc(s.media) + "' muted></video>"; }
+else { inner = "<img src='" + esc(s.media) + "'>"; }
+var v = "";
+if(s.verified === true){ v = " " + vbadge(); }html = html + "<div class='topitem' onclick=\"viewStory('" + esc(s.media) + "','" + esc(s.mediaType) + "','" + esc(s.text) + "')\"><div class='topcircle'>" + inner + "</div>" + esc(s.authorName) + v + "</div>";
+}
+bar.innerHTML = html;
+}
+function showFeed(){
+var feed = getEl("feed");
+var list = [];
+for(var i=0;i<allPosts.length;i++){ if(currentFilter === "All" || allPosts[i].type === currentFilter){ list.push(allPosts[i]); } }
+if(list.length === 0){ feed.innerHTML = "<div class='card' style='text-align:center'>No posts yet. Be the first to post.</div>"; return; }
+var html = "";
+for(var n=0;n<list.length;n++){
+var p = list[n];
+var firstLetter = "M";
+if(p.authorName && p.authorName.length > 0){ firstLetter = p.authorName.charAt(0); }
+var verifiedHtml = "";
+if(p.verified === true){ verifiedHtml = " " + vbadge(); }
+var picHtml = "<div class='av'>" + esc(firstLetter) + "</div>";
+if(p.authorPic && p.authorPic !== ""){ picHtml = "<div class='av'><img src='" + esc(p.authorPic) + "'></div>"; }
+var mediaHtml = "";
+if(p.image && p.image !== ""){
+if(p.mediaType === "video" || isVid(p.image)){ mediaHtml = "<video class='postvid' src='" + esc(p.image) + "' controls playsinline></video>"; }
+else { mediaHtml = "<img class='postimg' src='" + esc(p.image) + "'>"; }
+}
+var formHtml = "";
+if(p.form){
+var qHtml = "";
+var qs = p.form.questions;
+if(qs === undefined){ qs = []; }
+for(var fq=0;fq<qs.length;fq++){ qHtml = qHtml + (fq+1) + ". " + esc(qs[fq]) + "<br>"; }
+formHtml = "<div class='formbox'><b>" + esc(p.form.title) + "</b><p class='small'>" + qHtml + "</p><button class='btns' onclick=\"doForm('" + p.id + "')\">Fill Form</button></div>";
+}
+var likes = p.likes;
+if(likes === undefined){ likes = []; }
+var likedClass = "";
+if(currentUser){ for(var l=0;l<likes.length;l++){ if(likes[l] === currentUser.uid){ likedClass = " on"; } } }
+var comments = p.comments;
+if(comments === undefined){ comments = []; }
+var commentHtml = "";
+for(var c=0;c<comments.length;c++){ commentHtml = commentHtml + "<div class='cbox'><b>" + esc(comments[c].name) + ":</b> " + esc(comments[c].text) + "</div>"; }
+var deleteHtml = "";
+if(currentUser && currentUser.uid === p.authorId){ deleteHtml = "<button class='btns' onclick=\"doDelete('" + p.id + "','" + p.authorId + "')\">Delete</button>"; }
+html = html + "<div class='card'><div style='display:flex;gap:10px'>" + picHtml + "<div><b>" + esc(p.authorName) + verifiedHtml + "</b><br><span class='small'>" + esc(p.type) + "</span></div></div><span class='badge'>" + esc(p.type) + "</span><h3 style='margin:8px 0 4px'>" + esc(p.title) + "</h3><p>" + esc(p.text) + "</p>" + mediaHtml + formHtml + "<div style='margin-top:12px'><button class='btns" + likedClass + "' onclick=\"doLike('" + p.id + "')\">Like (" + likes.length + ")</button><button class='btns' onclick=\"doComment('" + p.id + "')\">Comment (" + comments.length + ")</button><button class='btns' onclick=\"doShare('" + esc(p.title) + "','" + esc(p.text) + "')\">Share</button>" + deleteHtml + "</div>" + commentHtml + "</div>";
+}
+feed.innerHTML = html;
+}
+function showMyResponses(){
+var box = getEl("myResponses");
+if(allResponses.length === 0){ box.innerHTML = "<p class='small'>No responses yet</p>"; return; }
+var html = "";
+for(var i=0;i<allResponses.length;i++){
+var r = allResponses[i];
+var ans = "";
+for(var j=0;j<r.answers.length;j++){ ans = ans + "<br>Q: " + esc(r.questions[j]) + "<br>A: " + esc(r.answers[j]) + "<br>"; }
+html = html + "<div class='formbox'><b>" + esc(r.postTitle) + "</b> - by " + esc(r.name) + ans + "</div>";
+}
+box.innerHTML = html;
+}
+onAuthStateChanged(auth, async function(user){
+if(user){
+currentUser = user;
+currentName = user.displayName;
+if(currentName === null || currentName === ""){ currentName = "User"; }
+currentVerified = false;
+currentBio = "";
+currentPic = "";
+try{
+var snap = await getDoc(doc(db, "users", user.uid));
+if(snap.exists()){
+var udata = snap.data();
+currentName = udata.name;
+currentBio = udata.bio;
+if(currentBio === undefined){ currentBio = ""; }
+currentPic = udata.pic;
+if(currentPic === undefined){ currentPic = ""; }
+if(udata.verified === true){ currentVerified = true; }
+}
+}catch(e){}
+getEl("authScreen").classList.add("hidden");
+getEl("mainScreen").classList.remove("hidden");
+var badge = "";
+if(currentVerified === true){ badge = " " + vbadge(); }
+getEl("headerUser").innerHTML = "Hi, " + esc(currentName) + badge;
+refreshDashboard();
+if(user.email === "moodspaceafrica@gmail.com"){ getEl("adminBox").style.display = "block"; }
+else { getEl("adminBox").style.display = "none"; }
+} else {
+currentUser = null;
+getEl("authScreen").classList.remove("hidden");
+getEl("mainScreen").classList.add("hidden");
+getEl("headerUser").innerHTML = "";
+}
+});
+var q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+onSnapshot(q, function(snap){
+allPosts = [];
+snap.forEach(function(d){ var data = d.data(); data.id = d.id; allPosts.push(data); });
+if(currentUser !== null){ showFeed(); }
+});
+var q2 = query(collection(db, "stories"), orderBy("createdAt", "desc"));
+onSnapshot(q2, function(snap){
+allStories = [];
+snap.forEach(function(d){ var data = d.data(); data.id = d.id; allStories.push(data); });
+if(currentUser !== null){ showStories(); }
+});
+var q3 = query(collection(db, "verification"), orderBy("createdAt", "desc"));
+onSnapshot(q3, function(snap){
+var list = getEl("verifyList");
+if(list === null){ return; }
+var html = "";
+snap.forEach(function(d){
+var v = d.data();
+if(v.status === "pending"){
+var mediaTag = "";
+if(v.mediaType === "video"){ mediaTag = "<video src='" + esc(v.media) + "' controls style='width:100%'></video>"; }
+else { mediaTag = "<img src='" + esc(v.media) + "' style='width:100%'>"; }
+html = html + "<div class='formbox'><b>" + esc(v.name) + "</b>" + mediaTag + "<button class='btn' onclick=\"approveVerify('" + d.id + "','" + v.userId + "')\">Approve</button></div>";
+}
+});
+if(html === ""){ html = "<p class='small'>No pending requests</p>"; }
+list.innerHTML = html;
+});
+var q4 = query(collection(db, "formResponses"), orderBy("createdAt", "desc"));
+onSnapshot(q4, function(snap){
+allResponses = [];
+snap.forEach(function(d){
+var data = d.data();
+if(currentUser && data.ownerId === currentUser.uid){ allResponses.push(data); }
+});
+if(currentUser !== null){ showMyResponses(); }
+});
+</script>
+</body>
+</html>
