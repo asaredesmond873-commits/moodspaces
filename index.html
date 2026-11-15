@@ -8,179 +8,261 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <style>
-body{background:#f0f2f5;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-.fb-blue{background:#1877F2}.fb-blue-text{color:#1877F2}
-.hover-gray:hover{background:#f2f2f2}
-.story{height:180px} input:focus{outline:none} .post-img{max-height:500px;object-fit:cover;width:100%}
+body{background:linear-gradient(135deg,#FFF7CC,#FFD93D 30%,#FFF3A3 60%,#FFF9DB);min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.glass{background:rgba(255,255,255,.78);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.9);box-shadow:0 8px 32px rgba(180,140,0,.18);border-radius:24px}
+.yellow-btn{background:#FFC400;color:#1a1a1a;box-shadow:0 4px 0 #E6A800}
+.yellow-btn:active{transform:translateY(2px);box-shadow:0 2px 0 #E6A800}
+input,textarea,select{outline:none} input:focus,textarea:focus{border-color:#FFC400!important}
+.badge-verified{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;background:#FFC400;border-radius:999px;color:#000;font-size:11px;font-weight:900;box-shadow:0 0 0 2px white}
+.post-img{width:100%;max-height:480px;object-fit:cover;border-radius:16px}
+.chip{font-size:12px;padding:4px 10px;border-radius:999px;font-weight:700}
 </style>
 </head>
-<body>
+<body class="pb-10">
 
-<!-- TOP BAR -->
-<div class="bg-white shadow sticky top-0 z-50">
-<div class="max-w-[1300px] mx-auto flex items-center justify-between px-3 py-2 gap-3">
-<div class="flex items-center gap-2 flex-1">
-<div class="w-10 h-10 bg-[#1877F2] rounded-full flex items-center justify-center font-black text-white text-[22px]">M</div>
-<div class="hidden md:flex items-center bg-[#f0f2f5] rounded-full px-3 py-2 flex-1 max-w-[280px]"><i class="fa fa-search text-gray-500"></i><input placeholder="Search Moodspace" class="bg-transparent ml-2 text-[14px] w-full"></div>
-<div class="md:hidden font-bold text-[18px]">Moodspace Africa</div>
-</div>
-<div class="hidden md:flex gap-1 flex-1 justify-center">
-<button class="flex-1 py-2 rounded-lg text-[#1877F2] border-b-4 border-[#1877F2]"><i class="fa fa-home text-[22px]"></i></button>
-<button class="flex-1 py-2 rounded-lg hover-gray text-gray-500"><i class="fa fa-users text-[22px]"></i></button>
-<button class="flex-1 py-2 rounded-lg hover-gray text-gray-500"><i class="fa fa-tv text-[22px]"></i></button>
-<button class="flex-1 py-2 rounded-lg hover-gray text-gray-500"><i class="fa fa-store text-[22px]"></i></button>
-</div>
-<div class="flex items-center gap-2">
-<div class="hidden md:flex w-10 h-10 bg-[#e4e6eb] rounded-full items-center justify-center"><i class="fa fa-bell"></i></div>
-<div class="hidden md:flex w-10 h-10 bg-[#e4e6eb] rounded-full items-center justify-center"><i class="fa-brands fa-facebook-messenger"></i></div>
-<img id="topAvatar" src="https://i.pravatar.cc/100" class="w-10 h-10 rounded-full object-cover border">
-<button onclick="logout()" class="bg-[#e4e6eb] px-3 py-2 rounded-full text-[13px] font-semibold">Log out</button>
+<!-- TOP - LIKE TIKTOK / IG -->
+<header class="sticky top-0 z-50 px-3 pt-3">
+<div class="max-w-[1100px] mx-auto glass px-4 py-3 flex items-center gap-3">
+<div class="flex items-center gap-2"><div class="w-11 h-11 rounded-full bg-[#FFC400] flex items-center justify-center text-2xl font-black shadow">M</div><div><h1 class="font-black text-[20px] leading-none">Moodspace <span class="text-yellow-600">Africa</span></h1><p class="text-[11px] text-gray-600">Announcements • Events • Promo</p></div></div>
+<div class="ml-auto flex items-center gap-2">
+<span id="topName" class="hidden md:block text-sm font-bold"></span>
+<img id="topAvatar" src="https://i.pravatar.cc/100" class="w-9 h-9 rounded-full object-cover border-2 border-yellow-400">
+<button id="topAuthBtn" onclick="openAuth()" class="yellow-btn px-4 py-2 rounded-full text-sm font-black">Log In / Sign Up</button>
+<button id="topLogoutBtn" onclick="doLogout()" class="hidden bg-white px-3 py-2 rounded-full text-sm font-bold shadow">Log out</button>
 </div>
 </div>
-</div>
+</header>
 
-<!-- LOGIN SCREEN -->
-<div id="authScreen" class="min-h-screen flex items-center justify-center p-4">
-<div class="max-w-[900px] w-full flex flex-col md:flex-row gap-8 items-center">
-<div class="flex-1 text-center md:text-left">
-<h1 class="text-[52px] font-bold fb-blue-text leading-none">Moodspace</h1>
-<p class="text-[24px] mt-3">Connect with friends and the world around you in Africa.</p>
+<!-- WELCOMING FEED - VISIBLE IMMEDIATELY LIKE TIKTOK -->
+<div class="max-w-[1100px] mx-auto px-3 mt-4 grid lg:grid-cols-[320px_1fr] gap-4 items-start">
+
+<!-- LEFT - DASHBOARD / WELCOME -->
+<div class="space-y-4">
+<div class="glass p-4">
+<div id="guestWelcome">
+<h3 class="font-black text-lg">Welcome to Moodspace 👋</h3>
+<p class="text-sm text-gray-600 mt-1">See what's happening in Ghana. Announcements, events and promos from people around you.</p>
+<button onclick="openAuth()" class="w-full yellow-btn font-black py-3 rounded-full mt-3">Join to Post & Comment</button>
+<p class="text-xs text-gray-500 text-center mt-2">It's free. Takes 10 seconds.</p>
 </div>
-<div class="bg-white rounded-lg shadow-lg p-4 w-full max-w-[400px]">
-<input id="authName" placeholder="Full Name (for Sign Up)" class="w-full border rounded-md p-3 mb-2">
-<input id="authEmail" placeholder="Email" class="w-full border rounded-md p-3 mb-2">
-<input id="authPass" type="password" placeholder="Password" class="w-full border rounded-md p-3 mb-3">
-<button onclick="login()" class="w-full fb-blue text-white font-bold py-3 rounded-md">Log In</button>
-<p id="authMsg" class="text-center text-[13px] text-red-500 my-2"></p>
-<hr class="my-3">
-<button onclick="signup()" class="bg-[#42b72a] text-white font-bold px-5 py-2.5 rounded-md mx-auto block">Create New Account</button>
-<p class="text-center text-[12px] text-gray-500 mt-4">© 2026 Moodspace Africa</p>
+<div id="userDashboard" class="hidden">
+<div class="flex justify-between"><h3 class="font-black">My Dashboard</h3><button onclick="toggleEdit()" class="text-sm font-bold bg-white px-3 py-1 rounded-full shadow">Edit</button></div>
+<div class="text-center mt-2"><img id="dashAvatar" src="https://i.pravatar.cc/200" class="w-[90px] h-[90px] rounded-full mx-auto object-cover border-4 border-yellow-400"><h2 class="font-black text-lg mt-2 flex items-center justify-center gap-1"><span id="dashName">User</span><span id="dashBadge"></span></h2><p id="dashBio" class="text-sm text-gray-600">Add your bio...</p><p id="verifyStatus" class="text-xs mt-1 font-bold"></p></div>
+<div id="editBox" class="hidden mt-3 space-y-2">
+<input id="editName" placeholder="Name" class="w-full border rounded-2xl p-2.5 bg-white text-sm">
+<input id="editAvatar" placeholder="Profile picture link - https://..." class="w-full border rounded-2xl p-2.5 bg-white text-sm">
+<textarea id="editBio" placeholder="Bio" class="w-full border rounded-2xl p-2.5 bg-white text-sm"></textarea>
+<button onclick="saveProfile()" class="w-full yellow-btn font-bold py-2 rounded-full">Save Profile</button>
 </div>
+<div class="grid grid-cols-2 gap-2 mt-3 text-center text-sm"><div class="bg-white/80 rounded-2xl p-2"><b id="myPostCount">0</b><p class="text-xs text-gray-500">My Posts</p></div><div class="bg-white/80 rounded-2xl p-2"><b id="myResponseCount">0</b><p class="text-xs text-gray-500">Form Responses</p></div></div>
+<button onclick="document.getElementById('verifyBox').classList.toggle('hidden')" class="w-full mt-3 bg-black text-yellow-300 font-bold py-2.5 rounded-full text-sm">⭐ Get Verified - Submit Proof</button>
+<div id="verifyBox" class="hidden mt-2 space-y-2"><input id="verifyLink" placeholder="Proof Photo / Video link" class="w-full border rounded-2xl p-2.5 bg-white text-sm"><input id="verifyFile" type="file" accept="image/*,video/*" class="w-full text-sm"><button onclick="submitVerify()" class="w-full yellow-btn font-bold py-2 rounded-full text-sm">Submit Verification</button></div>
 </div>
 </div>
 
-<!-- MAIN APP -->
-<div id="mainApp" class="hidden max-w-[1300px] mx-auto flex gap-4 px-2 md:px-4 pt-3 pb-10">
-<!-- LEFT -->
-<div class="hidden lg:block w-[300px] shrink-0 sticky top-[70px] h-fit"><div class="flex items-center gap-3 p-2 rounded-lg hover-gray cursor-pointer"><img id="leftAvatar" src="https://i.pravatar.cc/100" class="w-9 h-9 rounded-full"><b id="leftName">My Profile</b></div>
-<div class="flex items-center gap-3 p-2 rounded-lg hover-gray cursor-pointer"><div class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">👥</div><span>Friends</span></div>
-<div class="flex items-center gap-3 p-2 rounded-lg hover-gray cursor-pointer"><div class="w-9 h-9 bg-purple-100 rounded-full flex items-center justify-center">🎬</div><span>Video</span></div>
-<div class="flex items-center gap-3 p-2 rounded-lg hover-gray cursor-pointer"><div class="w-9 h-9 bg-yellow-100 rounded-full flex items-center justify-center">🏪</div><span>Marketplace</span></div>
-<div class="flex items-center gap-3 p-2 rounded-lg hover-gray cursor-pointer"><div class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center">📰</div><span>News Feed</span></div>
-<div class="flex items-center gap-3 p-2 rounded-lg hover-gray cursor-pointer"><div class="w-9 h-9 bg-red-100 rounded-full flex items-center justify-center">🎉</div><span>Events in Ghana</span></div>
-<p class="text-[12px] text-gray-500 mt-4 px-2">Privacy · Terms · Advertising<br>© 2026 Moodspace Africa</p>
+<div class="glass p-4">
+<h3 class="font-black text-sm">📸 Stories</h3>
+<div id="storiesRow" class="flex gap-2 overflow-x-auto mt-2"></div>
+<div id="storyCreator" class="hidden mt-3 space-y-2"><input id="storyFile" type="file" accept="image/*,video/*" class="w-full text-sm"><input id="storyText" placeholder="Story caption..." class="w-full border rounded-2xl p-2.5 bg-white text-sm"><button onclick="postStory()" class="w-full yellow-btn font-bold py-2 rounded-full text-sm">Post Story From Gallery</button></div>
+<p id="storyLoginHint" class="text-xs text-gray-500 mt-2">Log in to post your story.</p>
 </div>
 
-<!-- CENTER -->
-<div class="flex-1 max-w-[590px] mx-auto w-full">
-<div class="bg-white rounded-lg shadow p-3 flex gap-2 overflow-x-auto">
-<div class="shrink-0 w-[110px]"><div class="story bg-gray-200 rounded-lg relative overflow-hidden"><img src="https://picsum.photos/200/300?random=1" class="w-full h-full object-cover"><div class="absolute bottom-0 bg-white w-full p-1 text-center"><div class="w-7 h-7 bg-[#1877F2] text-white rounded-full mx-auto -mt-4 flex items-center justify-center border-4 border-white">+</div><p class="text-[12px] font-semibold mt-1">Create Story</p></div></div></div>
-<div class="shrink-0 w-[110px]"><div class="story rounded-lg relative overflow-hidden"><img src="https://picsum.photos/200/300?random=2" class="w-full h-full object-cover"><div class="absolute top-2 left-2 w-9 h-9 rounded-full border-4 border-[#1877F2] overflow-hidden"><img src="https://i.pravatar.cc/100?img=12"></div><p class="absolute bottom-2 left-2 text-white text-[13px] font-bold">Kwame Mensah</p></div></div>
-<div class="shrink-0 w-[110px]"><div class="story rounded-lg relative overflow-hidden"><img src="https://picsum.photos/200/300?random=3" class="w-full h-full object-cover"><div class="absolute top-2 left-2 w-9 h-9 rounded-full border-4 border-[#1877F2] overflow-hidden"><img src="https://i.pravatar.cc/100?img=32"></div><p class="absolute bottom-2 left-2 text-white text-[13px] font-bold">Ama Serwaa</p></div></div>
-<div class="shrink-0 w-[110px]"><div class="story rounded-lg relative overflow-hidden"><img src="https://picsum.photos/200/300?random=4" class="w-full h-full object-cover"><div class="absolute top-2 left-2 w-9 h-9 rounded-full border-4 border-[#1877F2] overflow-hidden"><img src="https://i.pravatar.cc/100?img=5"></div><p class="absolute bottom-2 left-2 text-white text-[13px] font-bold">Yaw Asante</p></div></div>
+<div id="responseBox" class="glass p-4 hidden"><h3 class="font-black text-sm">📝 My Form Responses</h3><div id="myResponses" class="mt-2 space-y-2 text-sm"></div></div>
 </div>
 
-<div class="bg-white rounded-lg shadow p-3 mt-3">
-<div class="flex gap-2"><img id="composerAvatar" src="https://i.pravatar.cc/100" class="w-10 h-10 rounded-full"><input id="postText" placeholder="What's on your mind?" class="flex-1 bg-[#f0f2f5] rounded-full px-4"></div>
-<hr class="my-3">
-<div class="flex">
-<button onclick="document.getElementById('postImage').focus()" class="flex-1 py-1 rounded-md hover-gray text-[14px]">🖼️ Photo</button>
-<button onclick="document.getElementById('postImage').focus()" class="flex-1 py-1 rounded-md hover-gray text-[14px]">🎥 Video</button>
-<button onclick="publishPost()" class="flex-1 bg-[#1877F2] text-white rounded-md py-1 font-bold text-[14px]">Post</button>
+<!-- CENTER - FEED -->
+<div class="space-y-4">
+<div class="glass p-4">
+<div class="flex gap-2 overflow-x-auto">
+<button onclick="setFilter('All')" data-filter="All" class="filterBtn chip bg-black text-yellow-300">For You</button>
+<button onclick="setFilter('Announcement')" data-filter="Announcement" class="filterBtn chip bg-white">📢 Announcement</button>
+<button onclick="setFilter('Event')" data-filter="Event" class="filterBtn chip bg-white">🎉 Event</button>
+<button onclick="setFilter('Promo')" data-filter="Promo" class="filterBtn chip bg-white">📣 Promo</button>
 </div>
-<input id="postImage" placeholder="Paste image link (optional)" class="w-full mt-2 border rounded-md p-2 text-[13px]">
-</div>
-
-<div id="feed" class="space-y-3 mt-3"></div><div id="emptyFeed" class="bg-white rounded-lg shadow p-8 text-center mt-3"><h3 class="font-bold text-[18px]">Welcome to Moodspace Africa</h3><p class="text-gray-500 text-[14px] mt-1">No posts yet. Be the first to post.</p></div>
+<p class="text-sm text-gray-600 mt-2">🔥 Trending in Accra • Kumasi • Takoradi — Scroll and discover.</p>
 </div>
 
-<!-- RIGHT -->
-<div class="hidden xl:block w-[300px] shrink-0 sticky top-[70px] h-fit">
-<div class="bg-white rounded-lg shadow p-3"><h3 class="font-bold">Sponsored</h3><div class="flex gap-2 mt-2"><img src="https://picsum.photos/100/100?random=9" class="w-16 h-16 rounded-lg"><div><b class="text-[14px]">Accra Fashion Week</b><p class="text-[12px] text-gray-500">accrafashion.com</p></div></div></div>
-<div class="bg-white rounded-lg shadow p-3 mt-3"><h3 class="font-bold">Contacts</h3><div class="space-y-2 mt-2 text-[14px]"><div class="flex items-center gap-2"><img src="https://i.pravatar.cc/100?img=12" class="w-8 h-8 rounded-full"> Kwame Mensah <span class="w-2 h-2 bg-green-500 rounded-full ml-auto"></span></div><div class="flex items-center gap-2"><img src="https://i.pravatar.cc/100?img=32" class="w-8 h-8 rounded-full"> Ama Serwaa <span class="w-2 h-2 bg-green-500 rounded-full ml-auto"></span></div><div class="flex items-center gap-2"><img src="https://i.pravatar.cc/100?img=5" class="w-8 h-8 rounded-full"> Yaw Asante <span class="w-2 h-2 bg-green-500 rounded-full ml-auto"></span></div></div></div>
+<!-- CREATE POST - ALWAYS VISIBLE, LOGIN ONLY WHEN YOU TRY -->
+<div class="glass p-4">
+<h3 class="font-black">Create Post</h3>
+<div class="flex gap-2 mt-2"><select id="postType" class="border rounded-full px-3 py-2 bg-white text-sm font-bold"><option>Announcement</option><option>Event</option><option>Promo</option></select><select id="postMediaType" class="border rounded-full px-3 py-2 bg-white text-sm"><option value="text">Text Only</option><option value="photo">Photo</option><option value="video">Video</option></select></div>
+<textarea id="postText" rows="3" placeholder="Write your announcement, event or promo..." class="w-full border rounded-2xl p-3 bg-white text-sm mt-2"></textarea>
+<input id="postMedia" placeholder="Photo / Video link - https://..." class="w-full border rounded-2xl p-2.5 bg-white text-sm mt-2">
+<label class="flex items-center gap-2 mt-3 text-sm font-bold"><input id="enableForm" type="checkbox" onchange="document.getElementById('formBuilder').classList.toggle('hidden',!this.checked)"> Add Form for people to fill</label><div id="formBuilder" class="hidden mt-2 space-y-2 bg-yellow-50 p-3 rounded-2xl"><p class="text-xs font-bold">Choose what people should fill:</p><label class="text-sm"><input type="checkbox" class="formField" value="Full Name" checked> Full Name</label><label class="text-sm ml-2"><input type="checkbox" class="formField" value="Phone"> Phone</label><label class="text-sm ml-2"><input type="checkbox" class="formField" value="Email"> Email</label><label class="text-sm ml-2"><input type="checkbox" class="formField" value="Number of Tickets"> Tickets</label><label class="text-sm ml-2"><input type="checkbox" class="formField" value="Location"> Location</label><input id="customField" placeholder="Custom question e.g. What is your size?" class="w-full border rounded-2xl p-2 bg-white text-sm"></div>
+<button onclick="tryPublish()" class="w-full yellow-btn font-black py-3 rounded-full mt-3">Post Now</button>
+<p id="postMsg" class="text-sm text-red-600 mt-1"></p>
+</div>
+
+<div id="statusBar" class="glass p-4 text-center text-sm text-gray-600">Loading feed...</div>
+<div id="feed" class="space-y-4"></div>
+</div>
+</div>
+
+<!-- AUTH MODAL - ONLY WHEN YOU TRY TO INTERACT -->
+<div id="authModal" class="hidden fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+<div class="glass p-5 w-full max-w-[400px] relative">
+<button onclick="closeAuth()" class="absolute top-3 right-3 bg-white w-8 h-8 rounded-full font-bold">✕</button>
+<h3 class="font-black text-xl">Join Moodspace Africa</h3><p class="text-sm text-gray-600">To like, comment, post or fill forms, create a free account.</p>
+<input id="authName" placeholder="Full Name / Business Name" class="w-full border rounded-2xl p-3 mt-3 mb-2 bg-white text-sm">
+<input id="authEmail" placeholder="Email" class="w-full border rounded-2xl p-3 mb-2 bg-white text-sm">
+<input id="authPass" type="password" placeholder="Password (6+ chars)" class="w-full border rounded-2xl p-3 mb-2 bg-white text-sm">
+<p id="authMsg" class="text-sm text-red-600 min-h-[20px]"></p>
+<button onclick="doSignup()" class="w-full yellow-btn font-black py-3 rounded-full">Create Account</button>
+<button onclick="doLogin()" class="w-full bg-black text-yellow-300 font-bold py-3 rounded-full mt-2">Log In</button>
 </div>
 </div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyBHp8ica_4LhPVYYyxhQz70x7ad2x-c0JM",
-  authDomain: "moodspaceafrica.firebaseapp.com",
-  projectId: "moodspaceafrica",
-  storageBucket: "moodspaceafrica.firebasestorage.app",
-  messagingSenderId: "449390027692",
-  appId: "1:449390027692:web:8651532b91c5ea3e82d009"
-};
+const firebaseConfig={apiKey:"AIzaSyBHp8ica_4LhPVYYyxhQz70x7ad2x-c0JM",authDomain:"moodspaceafrica.firebaseapp.com",projectId:"moodspaceafrica",storageBucket:"moodspaceafrica.firebasestorage.app",messagingSenderId:"449390027692",appId:"1:449390027692:web:8651532b91c5ea3e82d009"};
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-let currentUser=null, currentName="User";
+const auth=firebase.auth(); const db=firebase.firestore();
+let currentUser=null, currentProfile={name:"User",bio:"",avatar:"",verified:false}, allPosts=[], filter="All";
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
+function badgeHTML(v){ return v ? <span class="badge-verified" title="Verified">✓</span> : ``; }
+function readFileAsDataURL(f){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(f); }); }
+function openAuth(){ document.getElementById('authModal').classList.remove('hidden'); }
+function closeAuth(){ document.getElementById('authModal').classList.add('hidden'); }
+function needLogin(){ if(!currentUser){ openAuth(); return true; } return false; }
 
-async function signup(){
+async function doSignup(){
   const name=document.getElementById('authName').value.trim(), email=document.getElementById('authEmail').value.trim(), pass=document.getElementById('authPass').value;
-  if(!name||!email||!pass) return document.getElementById('authMsg').innerText="Fill name, email and password";
-  try{ const r=await auth.createUserWithEmailAndPassword(email,pass); await db.collection('users').doc(r.user.uid).set({name,email,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); }
-  catch(e){ document.getElementById('authMsg').innerText=e.message; }
+  if(!name) return document.getElementById('authMsg').textContent="Enter your name";
+  if(!email) return document.getElementById('authMsg').textContent="Enter email";
+  if(pass.length<6) return document.getElementById('authMsg').textContent="Password must be 6+ characters";
+  try{ const r=await auth.createUserWithEmailAndPassword(email,pass); await db.collection('users').doc(r.user.uid).set({name,email,bio:"",avatar:"",verified:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); closeAuth(); }
+  catch(e){ document.getElementById('authMsg').textContent=e.message; }
 }
-async function login(){
+async function doLogin(){
   const email=document.getElementById('authEmail').value.trim(), pass=document.getElementById('authPass').value;
-  try{ await auth.signInWithEmailAndPassword(email,pass); } catch(e){ document.getElementById('authMsg').innerText=e.message; }
+  if(!email||!pass) return document.getElementById('authMsg').textContent="Enter email and password";
+  try{ await auth.signInWithEmailAndPassword(email,pass); closeAuth(); }catch(e){ document.getElementById('authMsg').textContent=e.message; }
 }
-function logout(){ auth.signOut(); }
+function doLogout(){ auth.signOut(); }
 
 auth.onAuthStateChanged(async u=>{
   if(u){
     currentUser=u;
-    const doc=await db.collection('users').doc(u.uid).get();
-    currentName=doc.exists?doc.data().name:u.email.split('@')[0];
-    const av="https://i.pravatar.cc/100?u="+u.uid;
-    document.getElementById('authScreen').classList.add('hidden');
-    document.getElementById('mainApp').classList.remove('hidden');
-    document.getElementById('leftName').innerText=currentName;
-    document.getElementById('topAvatar').src=av; document.getElementById('leftAvatar').src=av; document.getElementById('composerAvatar').src=av;
-    loadFeed();
+    const d=await db.collection('users').doc(u.uid).get();
+    currentProfile = d.exists ? d.data() : {name:u.email.split('@')[0],bio:"",avatar:"",verified:false};
+    document.getElementById('guestWelcome').classList.add('hidden');
+    document.getElementById('userDashboard').classList.remove('hidden');
+    document.getElementById('responseBox').classList.remove('hidden');
+    document.getElementById('storyCreator').classList.remove('hidden');
+    document.getElementById('storyLoginHint').classList.add('hidden');
+    document.getElementById('topAuthBtn').classList.add('hidden');
+    document.getElementById('topLogoutBtn').classList.remove('hidden');
+    const av=currentProfile.avatar||"https://i.pravatar.cc/200?u="+encodeURIComponent(u.uid);
+    document.getElementById('dashAvatar').src=av; document.getElementById('topAvatar').src=av;
+    document.getElementById('dashName').textContent=currentProfile.name||"User";
+    document.getElementById('topName').textContent=currentProfile.name||"";
+    document.getElementById('dashBio').textContent=currentProfile.bio||"Add your bio...";
+    document.getElementById('dashBadge').innerHTML=badgeHTML(currentProfile.verified);
+    document.getElementById('verifyStatus').textContent=currentProfile.verified?"✓ Verified Creator":"Not verified yet";
+    document.getElementById('editName').value=currentProfile.name||""; document.getElementById('editBio').value=currentProfile.bio||""; document.getElementById('editAvatar').value=currentProfile.avatar||"";
+    startMyResponses();
   } else {
-    document.getElementById('authScreen').classList.remove('hidden');
-    document.getElementById('mainApp').classList.add('hidden');
+    currentUser=null; currentProfile={name:"Guest",bio:"",avatar:"",verified:false};
+    document.getElementById('guestWelcome').classList.remove('hidden');
+    document.getElementById('userDashboard').classList.add('hidden');
+    document.getElementById('responseBox').classList.add('hidden');
+    document.getElementById('storyCreator').classList.add('hidden');
+    document.getElementById('storyLoginHint').classList.remove('hidden');
+    document.getElementById('topAuthBtn').classList.remove('hidden');
+    document.getElementById('topLogoutBtn').classList.add('hidden');
+    document.getElementById('topName').textContent="";
   }
+  renderFeed();
 });
-
+function toggleEdit(){ if(needLogin()) return; document.getElementById('editBox').classList.toggle('hidden'); }
+async function saveProfile(){
+  if(needLogin()) return;
+  const name=document.getElementById('editName').value.trim(), bio=document.getElementById('editBio').value.trim(), avatar=document.getElementById('editAvatar').value.trim();
+  if(!name) return alert("Name cannot be empty");
+  await db.collection('users').doc(currentUser.uid).update({name,bio,avatar});
+  currentProfile={...currentProfile,name,bio,avatar};
+  document.getElementById('dashName').textContent=name; document.getElementById('dashBio').textContent=bio||"Add your bio...";
+  if(avatar) document.getElementById('dashAvatar').src=avatar;
+  toggleEdit(); alert("Profile saved");
+}
+async function submitVerify(){
+  if(needLogin()) return;
+  const link=document.getElementById('verifyLink').value.trim(); const file=document.getElementById('verifyFile').files[0];
+  let proof=link; if(file) proof=await readFileAsDataURL(file);
+  if(!proof) return alert("Add photo/video link or choose file");
+  await db.collection('users').doc(currentUser.uid).update({verified:true,verifyStatus:"Verified",verifyProof:proof});
+  currentProfile.verified=true; document.getElementById('dashBadge').innerHTML=badgeHTML(true); document.getElementById('verifyStatus').textContent="✓ Verified Creator";
+  alert("Verified! Badge added ⭐");
+}
+async function postStory(){
+  if(needLogin()) return;
+  const file=document.getElementById('storyFile').files[0]; const text=document.getElementById('storyText').value.trim();
+  if(!file && !text) return alert("Choose photo/video from gallery or write text");
+  let media=""; if(file) media=await readFileAsDataURL(file);
+  await db.collection('stories').add({uid:currentUser.uid,name:currentProfile.name,avatar:currentProfile.avatar||"",text,media,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  document.getElementById('storyText').value=""; document.getElementById('storyFile').value=""; alert("Story posted!");
+}
+function setFilter(f){ filter=f; document.querySelectorAll('.filterBtn').forEach(b=>{ b.className = b.dataset.filter===f ? "filterBtn chip bg-black text-yellow-300" : "filterBtn chip bg-white"; }); renderFeed(); }
+function tryPublish(){ if(needLogin()) return; publishPost(); }
 async function publishPost(){
-  const text=document.getElementById('postText').value.trim();
-  const img=document.getElementById('postImage').value.trim();
-  if(!text && !img) return alert("Write something first");
-  await db.collection('posts').add({text, image:img||"", name:currentName, uid:currentUser.uid, likes:0, likedBy:[], createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-  document.getElementById('postText').value=""; document.getElementById('postImage').value="";
+  const type=document.getElementById('postType').value, mediaType=document.getElementById('postMediaType').value;
+  const text=document.getElementById('postText').value.trim(), media=document.getElementById('postMedia').value.trim();
+  const enableForm=document.getElementById('enableForm').checked;
+  let fields=[]; document.querySelectorAll('.formField:checked').forEach(c=>fields.push(c.value));
+  const custom=document.getElementById('customField').value.trim(); if(custom) fields.push(custom);
+  if(!text && !media) return document.getElementById('postMsg').textContent="Write something or add photo/video link";
+  if(enableForm && fields.length===0) return document.getElementById('postMsg').textContent="Choose at least one form field";
+  const btn=document.querySelector('button[onclick="tryPublish()"]'); btn.disabled=true;
+  try{
+    await db.collection('posts').add({type,mediaType,text,media:media||"",name:currentProfile.name,uid:currentUser.uid,avatar:currentProfile.avatar||"",verified:!!currentProfile.verified,likes:0,likedBy:[],comments:[],formFields:enableForm?fields:[],createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    document.getElementById('postText').value=""; document.getElementById('postMedia').value=""; document.getElementById('customField').value=""; document.getElementById('postMsg').textContent="";
+  }catch(e){ document.getElementById('postMsg').textContent=e.message; }
+  btn.disabled=false;
 }
-
-function loadFeed(){
-  db.collection('posts').orderBy('createdAt','desc').onSnapshot(snap=>{
-    const feed=document.getElementById('feed'); feed.innerHTML="";
-    document.getElementById('emptyFeed').style.display = snap.empty ? "block":"none";
-    snap.forEach(doc=>{
-      const p=doc.data(); const id=doc.id; const liked = p.likedBy && p.likedBy.includes(currentUser.uid);
-      const time = p.createdAt ? p.createdAt.toDate().toLocaleString() : "Just now";
-      feed.innerHTML += `
-      <div class="bg-white rounded-lg shadow">
-        <div class="flex items-center gap-2 p-3"><img src="https://i.pravatar.cc/100?u=${p.uid}" class="w-10 h-10 rounded-full"><div><b class="text-[15px]">${p.name||"User"}</b><p class="text-[12px] text-gray-500">${time} · Accra, Ghana 🌍</p></div><button onclick="deletePost('${id}','${p.uid}')" class="ml-auto text-gray-400">•••</button></div>
-        <p class="px-3 pb-2 text-[15px]">${p.text||""}</p>
-        ${p.image?`<img src="${p.image}" class="post-img">`:""}
-        <div class="flex justify-between px-3 py-2 text-[13px] text-gray-500"><span>👍 ${p.likes||0} Likes</span><span>0 Comments</span></div><hr>
-        <div class="flex p-1">
-          <button onclick="likePost('${id}',${p.likes||0},${JSON.stringify(p.likedBy||[])})" class="flex-1 py-1 rounded-md hover-gray font-semibold ${liked?'text-[#1877F2]':'text-gray-600'}">👍 ${liked?'Liked':'Like'}</button>
-          <button onclick="alert('Comments coming soon')" class="flex-1 py-1 rounded-md hover-gray font-semibold text-gray-600">💬 Comment</button>
-          <button onclick="navigator.clipboard.writeText(location.href);alert('Link copied')" class="flex-1 py-1 rounded-md hover-gray font-semibold text-gray-600">↗️ Share</button>
-        </div>
-      </div>`;
-    });
-  }, err=>{ alert("Firestore error: "+err.message); });
+function startFeed(){
+  db.collection('posts').orderBy('createdAt','desc').onSnapshot(s=>{ allPosts=[]; s.forEach(d=>allPosts.push({id:d.id,...d.data()})); renderFeed(); if(currentUser) document.getElementById('myPostCount').textContent=allPosts.filter(p=>p.uid===currentUser.uid).length; },e=>{ document.getElementById('statusBar').textContent="Error: "+e.message; });
+  db.collection('stories').orderBy('createdAt','desc').limit(20).onSnapshot(s=>{
+    let html=""; s.forEach(d=>{ const st=d.data(); html+=`<div class="shrink-0 w-[80px]"><div class="w-[80px] h-[110px] rounded-2xl overflow-hidden bg-gray-200">${st.media?`<img src="${st.media}" class="w-full h-full object-cover">`:`<div class="w-full h-full flex items-center justify-center p-2 text-xs bg-yellow-200">${esc(st.text)}</div>`}</div><p class="text-[11px] truncate">${esc(st.name)}</p></div>`; });
+    document.getElementById('storiesRow').innerHTML = html || "<p class='text-xs text-gray-500'>No stories yet. Be first!</p>";
+  });
 }
-async function likePost(id, likes, likedBy){
-  const has = likedBy.includes(currentUser.uid);
-  await db.collection('posts').doc(id).update({ likes: has? likes-1 : likes+1, likedBy: has? likedBy.filter(x=>x!==currentUser.uid) : [...likedBy, currentUser.uid] });
+function renderFeed(){
+  const feed=document.getElementById('feed'), bar=document.getElementById('statusBar');
+  let list = filter==="All" ? allPosts : allPosts.filter(p=>p.type===filter);
+  if(list.length===0){ bar.style.display="block"; bar.textContent = allPosts.length===0 ? "👋 Welcome to Moodspace! No posts yet. Be the first to post an announcement, event or promo." : "No "+filter+" posts yet."; feed.innerHTML=""; return; }
+  bar.style.display="none";
+  feed.innerHTML=list.map(p=>{
+    const liked = currentUser && (p.likedBy||[]).includes(currentUser.uid);const time=p.createdAt? p.createdAt.toDate().toLocaleString() : "Just now";
+    const typeColor = p.type==="Promo" ? "bg-black text-yellow-300" : p.type==="Event" ? "bg-yellow-400" : "bg-white";
+    let mediaHtml=""; if(p.media){ if(p.mediaType==="video"  p.media.includes(".mp4")  p.media.startsWith("data:video")) mediaHtml=`<video src="${p.media}" controls class="post-img"></video>`; else mediaHtml=`<img src="${p.media}" class="post-img" onerror="this.style.display='none'">`; }
+    const commentsHtml=(p.comments||[]).map(c=>`<div class="bg-white/80 rounded-2xl px-3 py-2 text-sm mt-1"><b>${esc(c.name)}</b> ${esc(c.text)}</div>`).join("");
+    const formHtml=(p.formFields||[]).length ? <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-3 mt-2"><p class="font-bold text-sm">📝 Fill Form</p><div class="space-y-1 mt-2">${p.formFields.map((f,i)=>`<input data-form-field="${p.id}-${i}" placeholder="${esc(f)}" class="w-full border rounded-full px-3 py-1.5 bg-white text-sm">`).join("")}</div><button data-action="submit-form" data-id="${p.id}" class="yellow-btn font-bold px-4 py-1.5 rounded-full text-sm mt-2">Submit Form</button></div> : "";
+    return `<article class="glass p-4">
+      <div class="flex items-center gap-2"><img src="${p.avatar||"https://i.pravatar.cc/100?u="+encodeURIComponent(p.uid)}" class="w-10 h-10 rounded-full object-cover"><div class="flex-1 min-w-0"><b class="text-[15px] flex items-center gap-1">${esc(p.name)} ${badgeHTML(p.verified)}</b><p class="text-xs text-gray-500">${esc(time)}</p></div><span class="chip ${typeColor}">${p.type==="Announcement"?"📢":p.type==="Event"?"🎉":"📣"} ${esc(p.type)}</span>${currentUser && p.uid===currentUser.uid?`<button onclick="deletePost('${p.id}')" class="text-gray-400 px-1">•••</button>`:""}</div>
+      <p class="mt-2 text-[15px] whitespace-pre-wrap">${esc(p.text)}</p>${mediaHtml}
+      <div class="flex justify-between text-[13px] text-gray-600 mt-2"><span>👍 ${p.likes||0} likes</span><span>${(p.comments||[]).length} comments</span></div><hr class="my-2 border-white">
+      <div class="flex gap-2"><button data-action="like" data-id="${p.id}" class="flex-1 bg-white py-2 rounded-full font-bold text-sm ${liked?'text-yellow-600':'text-gray-600'}">👍 ${liked?'Liked':'Like'}</button><button data-action="focus-comment" data-id="${p.id}" class="flex-1 bg-white py-2 rounded-full font-bold text-sm text-gray-600">💬 Comment</button><button data-action="share" class="flex-1 bg-white py-2 rounded-full font-bold text-sm text-gray-600">↗️ Share</button></div>
+      ${formHtml}
+      <div class="mt-3">${commentsHtml}<div class="flex gap-2 mt-2"><input data-comment-input="${p.id}" placeholder="Write a comment... (login to comment)" class="flex-1 bg-white rounded-full px-3 py-2 text-sm border"><button data-action="comment" data-id="${p.id}" class="font-black text-sm px-3">Send</button></div></div>
+    </article>`;
+  }).join("");
 }
-async function deletePost(id, uid){ if(uid!==currentUser.uid) return alert("You can only delete your own post"); if(confirm("Delete this post?")) await db.collection('posts').doc(id).delete(); }
+document.getElementById('feed').addEventListener('click', async e=>{
+  const btn=e.target.closest('[data-action]'); if(!btn) return;
+  const id=btn.getAttribute('data-id'), action=btn.getAttribute('data-action');
+  if(action==='share'){ try{ await navigator.clipboard.writeText(location.href); alert("Link copied"); }catch(err){ alert(location.href); } return; }
+  if(needLogin()) return;
+  const post=allPosts.find(p=>p.id===id); if(!post) return;
+  if(action==='like'){ const likedBy=post.likedBy||[]; const has=likedBy.includes(currentUser.uid); await db.collection('posts').doc(id).update({likes:has?(post.likes||0)-1:(post.likes||0)+1, likedBy:has?likedBy.filter(x=>x!==currentUser.uid):[...likedBy,currentUser.uid]}); }
+  if(action==='focus-comment'){ const inp=document.querySelector(`[data-comment-input="${id}"]`); if(inp) inp.focus(); }
+  if(action==='comment'){ const inp=document.querySelector(`[data-comment-input="${id}"]`); const txt=inp?inp.value.trim():""; if(!txt) return; await db.collection('posts').doc(id).update({comments:[...(post.comments||[]),{name:currentProfile.name,text:txt,at:Date.now()}]}); if(inp) inp.value=""; }if(action==='submit-form'){ const answers=[]; (post.formFields||[]).forEach((f,i)=>{ const inp=document.querySelector(`[data-form-field="${id}-${i}"]`); answers.push({question:f, answer: inp?inp.value.trim():""}); }); if(answers.some(a=>!a.answer)) return alert("Please fill all form fields"); await db.collection('formResponses').add({postId:id,postText:post.text,postOwnerUid:post.uid,responderName:currentProfile.name,responderUid:currentUser.uid,answers,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); alert("Form submitted!"); }
+});
+async function deletePost(id){ if(!currentUser) return; if(!confirm("Delete this post? Only you can delete it.")) return; await db.collection('posts').doc(id).delete(); }
+function startMyResponses(){
+  if(!currentUser) return;
+  db.collection('formResponses').where('postOwnerUid','==',currentUser.uid).orderBy('createdAt','desc').onSnapshot(s=>{ let html=""; let c=0; s.forEach(d=>{ const r=d.data(); c++; html+=`<div class="bg-white/80 rounded-2xl p-3"><b>${esc(r.responderName)}</b> - ${esc((r.postText||"").slice(0,40))}<div class="mt-1">${(r.answers||[]).map(a=>`<p class="text-xs"><b>${esc(a.question)}:</b> ${esc(a.answer)}</p>`).join("")}</div></div>`; }); document.getElementById('myResponses').innerHTML=html||"<p class='text-xs text-gray-500'>No responses yet.</p>"; document.getElementById('myResponseCount').textContent=c; },()=>{});
+}
+startFeed();
 </script>
 </body>
 </html>
